@@ -18,15 +18,30 @@ class _SignupPageState extends State<SignupPage> {
   bool inputIsValid = true;
 
   Future<void> _signUp() async {
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Passwords do not match'),
+        ),
+      );
+      return;
+    }
+
     try {
-      final credential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
       setState(() {
         inputIsValid = false;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.green,
+          content: Text('Account created successfully!'),
+        ),
+      );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -135,6 +150,9 @@ class _SignupPageState extends State<SignupPage> {
                   ),
                   const SizedBox(height: 20),
                   TextField(
+                    style: TextStyle(
+                      color: inputIsValid ? Colors.black : Colors.red,
+                    ),
                     decoration: InputDecoration(
                       hintText: "Confirm Password",
                       border: OutlineInputBorder(
@@ -157,7 +175,19 @@ class _SignupPageState extends State<SignupPage> {
                   padding: const EdgeInsets.only(top: 3, left: 3),
                   child: ElevatedButton(
                     onPressed: () {
-                      _signUp();
+                      if (email.isEmpty ||
+                          password.isEmpty ||
+                          confirmPassword.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            backgroundColor: Colors.red,
+                            content: Text('Enter email and password'),
+                          ),
+                        );
+                        return;
+                      } else {
+                        _signUp();
+                      }
                     },
                     child: const Text(
                       "Sign up",

@@ -1,9 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:group_pay_admin/auth/login_page.dart';
 import 'package:group_pay_admin/controllers/auth.controller.dart';
-import 'package:group_pay_admin/home/post.dart';
-import 'package:group_pay_admin/home/student_list.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

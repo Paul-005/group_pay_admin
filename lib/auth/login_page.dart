@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:group_pay_admin/auth/forgot_password.dart';
 import 'package:group_pay_admin/auth/signup_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -106,7 +107,17 @@ class _LoginPageState extends State<LoginPage> {
         const SizedBox(height: 10),
         ElevatedButton(
           onPressed: () {
-            _login(emailAddress, password);
+            if (emailAddress.isEmpty || password.isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  backgroundColor: Colors.red,
+                  content: Text('Enter email and password'),
+                ),
+              );
+              return;
+            } else {
+              _login(emailAddress, password);
+            }
           },
           style: ElevatedButton.styleFrom(
             shape: const StadiumBorder(),
@@ -124,7 +135,12 @@ class _LoginPageState extends State<LoginPage> {
 
   _forgotPassword(context) {
     return TextButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+        );
+      },
       child: const Text(
         "Forgot password?",
         style: TextStyle(color: Colors.purple),
