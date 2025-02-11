@@ -20,8 +20,6 @@ class _LoginPageState extends State<LoginPage> {
       final credential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
     } on FirebaseAuthException catch (e) {
-      print(
-          'Firebase Auth Exception: ${e.code} - ${e.message}'); // Log the error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -29,7 +27,6 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
     } catch (e) {
-      print('General Exception: $e'); // Log the error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -41,19 +38,17 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        body: Container(
-          margin: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _header(context),
-              _inputField(context),
-              _forgotPassword(context),
-              _signup(context),
-            ],
-          ),
+    return Scaffold(
+      body: Container(
+        margin: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            _header(context),
+            _inputField(context),
+            _forgotPassword(context),
+            _signup(context),
+          ],
         ),
       ),
     );
@@ -63,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
     return const Column(
       children: [
         Text(
-          "Welcome Back",
+          "Welcome Admin",
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
         Text("Enter your credential to login"),

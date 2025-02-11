@@ -27,28 +27,16 @@ class _SignupPageState extends State<SignupPage> {
       setState(() {
         inputIsValid = false;
       });
-      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'weak-password') {
-        errorMessage = 'The password provided is too weak.';
-        setState(() {
-          inputIsValid = false;
-        });
-      } else {
-        // show snackbar with error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text(e.message ?? 'An unknown error occurred.'),
-          ),
-        );
-        setState(() {
-          inputIsValid = false;
-        });
-        errorMessage = 'The account already exists for that email.';
-      }
-    } catch (e) {
-      print(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(e.message ?? 'An unknown error occurred.'),
+        ),
+      );
+      setState(() {
+        inputIsValid = false;
+      });
     }
   }
 

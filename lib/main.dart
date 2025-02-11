@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:group_pay_admin/auth/login_page.dart';
+import 'package:group_pay_admin/controllers/auth.controller.dart';
 import 'package:group_pay_admin/home/post.dart';
 import 'package:group_pay_admin/home/student_list.dart';
 
@@ -22,11 +23,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      routes: {
-        '/create-post': (context) => CreatePostScreen(),
-        '/login': (context) => LoginPage(),
-      },
-      home: StudentListScreen(),
+      home: AuthController(),
     );
   }
 }

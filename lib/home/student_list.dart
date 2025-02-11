@@ -18,15 +18,6 @@ class StudentListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
-      if (user == null) {
-        // navigate to login screen
-        Navigator.pushNamed(context, '/login');
-      } else {
-        print('User is signed in!');
-      }
-    });
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Students', style: TextStyle(fontWeight: FontWeight.bold)),
