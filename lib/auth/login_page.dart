@@ -18,7 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _login(String emailAddress, String password) async {
     print('Email: $emailAddress, Password: $password');
     try {
-      final credential = await FirebaseAuth.instance
+      FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

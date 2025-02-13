@@ -31,9 +31,10 @@ class StudentListScreen extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
+            // icon for profile
+            icon: Icon(Icons.person),
+            onPressed: () {
+              Navigator.pushNamed(context, '/profile');
             },
           ),
         ],
@@ -47,10 +48,7 @@ class StudentListScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
-        onPressed: () {
-          // got ot create post screen stack
-          Navigator.pushNamed(context, '/create-post');
-        },
+        onPressed: () {},
       ),
     );
   }
