@@ -66,6 +66,7 @@ class ProfileScreen extends StatelessWidget {
               icon: "assets/icons/Log out.svg",
               press: () async {
                 await FirebaseAuth.instance.signOut();
+                Navigator.pop(context);
               },
             ),
           ],

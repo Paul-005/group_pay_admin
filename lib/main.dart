@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/profile': (context) => ProfileScreen(),
       },
-      home: AuthController(),
+      home: AuthGate(),
     );
   }
 }

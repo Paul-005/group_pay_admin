@@ -38,6 +38,12 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme:
+            const IconThemeData(color: Colors.purple), // Back arrow color
+      ),
       body: SingleChildScrollView(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -49,7 +55,6 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
             children: <Widget>[
               Column(
                 children: <Widget>[
-                  const SizedBox(height: 60.0),
                   const Text(
                     "Edit Profile",
                     style: TextStyle(
