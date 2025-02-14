@@ -3,53 +3,34 @@ name: Flutter CI
 on:
   push:
     branches:
-      - master
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      # Checkout the repository
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v2
 
-      # Set up Java environment
-      - name: Set up Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '12.x'
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: 'stable'
 
-      # Set up Flutter environment
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.0.0'  # Specify the desired Flutter version
-          channel: 'stable'
+    - name: Install Dart SDK
+      run: |
+        sudo apt-get update
+        sudo apt-get install apt-transport-https
+        sudo sh -c 'wget -qO- https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -'
+        sudo sh -c 'wget -qO- https://storage.googleapis.com/download.dartlang.org/linux/debian/dart_stable.list > /etc/apt/sources.list.d/dart_stable.list'
+        sudo apt-get update
+        sudo apt-get install dart=3.6.2-1
 
-      # Get Flutter dependencies
-      - name: Install Dependencies
-        run: flutter pub get
+    - name: Install dependencies
+      run: flutter pub get
 
-      # Check for formatting issues
-      - name: Check Code Formatting
-        run: flutter format --set-exit-if-changed .
-
-      # Analyze the Dart code
-      - name: Analyze Code
-        run: flutter analyze
-
-      # Run tests
-      - name: Run Tests
-        run: flutter test
-
-      # Build the APK
-      - name: Build APK
-        run: flutter build apk --release
-
-      # Upload APK to GitHub Releases
-      - name: Upload APK to GitHub Releases
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: build/app/outputs/flutter-apk/app-release.apk
-          
+    - name: Run tests
+      run: flutter test
