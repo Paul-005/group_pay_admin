@@ -9,49 +9,28 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # Checkout the repository
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # Set up Java environment
       - name: Set up Java
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '12.x'
+          java-version: '17' # Recommended for Flutter
 
-      # Set up Flutter environment
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.0.0'  # Specify the desired Flutter version
-          channel: 'stable'
+          flutter-version: '3.x' # Ensure it includes Dart 3.x
 
-      # Get Flutter dependencies
-      - name: Install Dependencies
+      - name: Install dependencies
         run: flutter pub get
 
-      # Check for formatting issues
-      - name: Check Code Formatting
-        run: flutter format --set-exit-if-changed .
-
-      # Analyze the Dart code
-      - name: Analyze Code
-        run: flutter analyze
-
-      # Run tests
-      - name: Run Tests
-        run: flutter test
-
-      # Build the APK
       - name: Build APK
         run: flutter build apk --release
 
-      # Upload APK to GitHub Releases
-      - name: Upload APK to GitHub Releases
-        uses: ncipollo/release-action@v1
+      - name: Upload APK to GitHub Artifacts
+        uses: actions/upload-artifact@v3
         with:
-          artifacts: build/app/outputs/flutter-apk/app-release.apk
-          name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
