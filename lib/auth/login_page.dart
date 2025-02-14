@@ -82,7 +82,7 @@ class _LoginPageState extends State<LoginPage> {
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(18),
                   borderSide: BorderSide.none),
-              fillColor: Colors.purple.withOpacity(0.1),
+              fillColor: Colors.deepPurple.withOpacity(0.1),
               filled: true,
               prefixIcon: const Icon(Icons.person)),
         ),
@@ -98,13 +98,13 @@ class _LoginPageState extends State<LoginPage> {
             border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(18),
                 borderSide: BorderSide.none),
-            fillColor: Colors.purple.withOpacity(0.1),
+            fillColor: Colors.deepPurple.withOpacity(0.1),
             filled: true,
             prefixIcon: const Icon(Icons.password),
           ),
           obscureText: true,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 30),
         ElevatedButton(
           onPressed: () {
             if (emailAddress.isEmpty || password.isEmpty) {
@@ -122,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
           style: ElevatedButton.styleFrom(
             shape: const StadiumBorder(),
             padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: Colors.purple,
+            backgroundColor: Colors.deepPurple,
           ),
           child: const Text(
             "Login",
@@ -143,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
       },
       child: const Text(
         "Forgot password?",
-        style: TextStyle(color: Colors.purple),
+        style: TextStyle(color: Colors.deepPurple),
       ),
     );
   }
@@ -162,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
             },
             child: const Text(
               "Sign Up",
-              style: TextStyle(color: Colors.purple),
+              style: TextStyle(color: Colors.deepPurple),
             ))
       ],
     );

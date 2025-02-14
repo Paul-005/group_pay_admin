@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:group_pay_admin/controllers/auth.controller.dart';
+import 'package:group_pay_admin/home/post.dart';
 import 'package:group_pay_admin/settings/profile.screen.dart';
 
 void main() async {
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/profile': (context) => ProfileScreen(),
+        'new-post': (context) => CreatePostScreen(),
       },
       home: AuthGate(),
     );

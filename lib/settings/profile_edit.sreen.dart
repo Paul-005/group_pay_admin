@@ -11,7 +11,6 @@ class ProfileEditPage extends StatefulWidget {
 class _ProfileEditPageState extends State<ProfileEditPage> {
   String firstName = '';
   String lastName = '';
-  String phoneNumber = '';
   bool inputIsValid = true;
 
   Future<void> _saveProfile() async {
@@ -25,6 +24,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
           content: Text('Profile updated successfully!'),
         ),
       );
+      Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -159,9 +159,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                 padding: const EdgeInsets.only(top: 3, left: 3),
                 child: ElevatedButton(
                   onPressed: () {
-                    if (firstName.isEmpty ||
-                        lastName.isEmpty ||
-                        phoneNumber.isEmpty) {
+                    if (firstName.isEmpty || lastName.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           backgroundColor: Colors.red,

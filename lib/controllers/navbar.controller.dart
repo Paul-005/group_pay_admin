@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:group_pay_admin/dashboard/dashboard.screen.dart';
 import 'package:group_pay_admin/home/student_list.dart';
 import 'package:group_pay_admin/settings/profile.screen.dart';
 
@@ -21,6 +22,7 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
   }
 
   final pages = [
+    DashboardScreen(),
     StudentListScreen(),
     ProfileScreen(),
   ];
@@ -32,32 +34,46 @@ class _BottomNavScreenState extends State<BottomNavScreen> {
       bottomNavigationBar: BottomNavigationBar(
         onTap: updateCurrentIndex,
         currentIndex: currentSelectedIndex,
-        showSelectedLabels: false,
         showUnselectedLabels: false,
         type: BottomNavigationBarType.fixed,
+        elevation: 0.5,
         items: [
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.list,
+              Icons.dashboard,
               color: inActiveIconColor,
             ),
             activeIcon: Icon(
-              Icons.list,
+              Icons.dashboard,
               color: Colors.deepPurple,
             ),
-            label: 'Favorite',
+            label: 'Dashboard',
+            tooltip: 'Dashboard',
           ),
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.person,
+              Icons.group,
               color: inActiveIconColor,
             ),
             activeIcon: Icon(
-              Icons.person,
+              Icons.group,
               color: Colors.deepPurple,
             ),
-            label: 'Favorite',
-          )
+            label: 'Manage',
+            tooltip: 'Manage Students',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(
+              Icons.settings,
+              color: inActiveIconColor,
+            ),
+            activeIcon: Icon(
+              Icons.settings,
+              color: Colors.deepPurple,
+            ),
+            label: 'Settings',
+            tooltip: 'Settings',
+          ),
         ],
       ),
     );
