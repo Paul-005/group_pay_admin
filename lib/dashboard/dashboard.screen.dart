@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:group_pay_admin/home/post.dart';
+import 'package:group_pay_admin/dashboard/manage_post.screen.dart';
+import 'package:group_pay_admin/dashboard/post.dart';
 
 class PostCard extends StatelessWidget {
   final String title;
@@ -132,7 +133,12 @@ class PostCard extends StatelessWidget {
               children: [
                 TextButton.icon(
                   onPressed: () {
-                    // Handle view details
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PostDetailsScreen(),
+                      ),
+                    );
                   },
                   icon: Icon(Icons.visibility, color: Colors.deepPurple),
                   label: Text(

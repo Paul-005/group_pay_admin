@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:group_pay_admin/dashboard/post_manage_students.screen.dart';
 
 class CreatePostScreen extends StatefulWidget {
   @override
@@ -11,6 +12,34 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
+  DateTime? _selectedDate;
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Colors.deepPurple,
+              onPrimary: Colors.white,
+              surface: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,19 +58,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // // Header Section
-            // Container(
-            //   padding: EdgeInsets.only(bottom: 32),
-            //   child: Text(
-            //     'New Money Collection',
-            //     style: TextStyle(
-            //       fontSize: 24,
-            //       fontWeight: FontWeight.bold,
-            //     ),
-            //   ),
-            // ),
-
-            // Form Section
             Padding(
               padding: EdgeInsets.all(20),
               child: Form(
@@ -49,7 +65,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // Title Card
                     _buildInputCard(
                       title: 'Collection Title',
                       hint: 'Enter collection title',
@@ -65,18 +80,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
                     SizedBox(height: 16),
 
-                    // Description Card
-                    _buildInputCard(
-                      title: 'Description',
-                      hint: 'Enter collection description',
-                      icon: Icons.description,
-                      controller: _descriptionController,
-                      maxLines: 3,
-                    ),
-
-                    SizedBox(height: 16),
-
-                    // Amount Card
                     _buildInputCard(
                       title: 'Amount per Person',
                       hint: 'Enter amount',
@@ -93,13 +96,107 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       },
                     ),
 
+                    SizedBox(height: 16),
+
+                    // New Date Picker Card
+                    Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(
+                          color: Colors.grey.withOpacity(0.2),
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.calendar_today,
+                                  size: 20,
+                                  color: Colors.deepPurple,
+                                ),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Last Date',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 12),
+                            InkWell(
+                              onTap: () => _selectDate(context),
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      _selectedDate != null
+                                          ? "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}"
+                                          : "Select last date",
+                                      style: TextStyle(
+                                        color: _selectedDate != null
+                                            ? Colors.black
+                                            : Colors.grey[400],
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.calendar_month,
+                                      color: Colors.deepPurple,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: 16),
+
+                    _buildInputCard(
+                      title: 'Description',
+                      hint: 'Enter collection description',
+                      icon: Icons.description,
+                      controller: _descriptionController,
+                      maxLines: 3,
+                    ),
+
                     SizedBox(height: 32),
 
-                    // Create Button
                     Container(
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: _handleSubmit,
+                        onPressed: () {
+                          // if (_formKey.currentState!.validate() &&
+                          //     _selectedDate != null) {
+                          //   // Handle form submission
+                          // }
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StudentSelectionScreen(),
+                            ),
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepPurple,
                           elevation: 3,
@@ -110,18 +207,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.add_circle_outline,
-                              size: 24,
-                              color: Colors.white,
+                            Text(
+                              'Next',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                             SizedBox(width: 12),
-                            Text(
-                              'Create Collection',
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
+                            Icon(
+                              Icons.arrow_forward,
+                              size: 24,
+                              color: Colors.white,
                             ),
                           ],
                         ),
@@ -206,28 +304,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ),
       ),
     );
-  }
-
-  void _handleSubmit() {
-    if (_formKey.currentState?.validate() ?? false) {
-      // Handle post creation
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(Icons.check_circle),
-              SizedBox(width: 8),
-              Text('Collection created successfully!'),
-            ],
-          ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      );
-    }
   }
 
   @override
