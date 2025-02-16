@@ -97,7 +97,7 @@ class _SignupPageState extends State<SignupPage> {
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(18),
                             borderSide: BorderSide.none),
-                        fillColor: Colors.purple.withOpacity(0.1),
+                        fillColor: Colors.deepPurple.withOpacity(0.1),
                         filled: true,
                         prefixIcon: const Icon(Icons.person)),
                     onChanged: (value) {
@@ -117,7 +117,7 @@ class _SignupPageState extends State<SignupPage> {
                         borderRadius: BorderRadius.circular(18),
                         borderSide: BorderSide.none,
                       ),
-                      fillColor: Colors.purple.withOpacity(0.1),
+                      fillColor: Colors.deepPurple.withOpacity(0.1),
                       filled: true,
                       prefixIcon: const Icon(Icons.email),
                     ),
@@ -137,7 +137,7 @@ class _SignupPageState extends State<SignupPage> {
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(18),
                           borderSide: BorderSide.none),
-                      fillColor: Colors.purple.withOpacity(0.1),
+                      fillColor: Colors.deepPurple.withOpacity(0.1),
                       filled: true,
                       prefixIcon: const Icon(Icons.password),
                     ),
@@ -158,7 +158,7 @@ class _SignupPageState extends State<SignupPage> {
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(18),
                           borderSide: BorderSide.none),
-                      fillColor: Colors.purple.withOpacity(0.1),
+                      fillColor: Colors.deepPurple.withOpacity(0.1),
                       filled: true,
                       prefixIcon: const Icon(Icons.password),
                     ),
@@ -196,7 +196,7 @@ class _SignupPageState extends State<SignupPage> {
                     style: ElevatedButton.styleFrom(
                       shape: const StadiumBorder(),
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.purple,
+                      backgroundColor: Colors.deepPurple,
                     ),
                   )),
               TextButton(
@@ -216,7 +216,7 @@ class _SignupPageState extends State<SignupPage> {
                       },
                       child: const Text(
                         "Login",
-                        style: TextStyle(color: Colors.purple),
+                        style: TextStyle(color: Colors.deepPurple),
                       ))
                 ],
               )

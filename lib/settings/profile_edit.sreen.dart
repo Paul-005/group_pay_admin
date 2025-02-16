@@ -42,7 +42,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme:
-            const IconThemeData(color: Colors.purple), // Back arrow color
+            const IconThemeData(color: Colors.deepPurple), // Back arrow color
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -94,7 +94,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                             : const BorderSide(color: Colors.red, width: 2),
                       ),
                       fillColor: inputIsValid
-                          ? Colors.purple.withOpacity(0.1)
+                          ? Colors.deepPurple.withOpacity(0.1)
                           : Colors.red.withOpacity(0.1),
                       filled: true,
                       prefixIcon: Icon(
@@ -121,7 +121,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                         borderRadius: BorderRadius.circular(18),
                         borderSide: BorderSide.none,
                       ),
-                      fillColor: Colors.purple.withOpacity(0.1),
+                      fillColor: Colors.deepPurple.withOpacity(0.1),
                       filled: true,
                       prefixIcon: const Icon(Icons.person),
                     ),
@@ -174,7 +174,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   style: ElevatedButton.styleFrom(
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.purple,
+                    backgroundColor: Colors.deepPurple,
                   ),
                   child: const Text(
                     "Save Changes",
@@ -190,7 +190,7 @@ class _ProfileEditPageState extends State<ProfileEditPage> {
                   },
                   child: const Text(
                     "Cancel",
-                    style: TextStyle(color: Colors.purple, fontSize: 16),
+                    style: TextStyle(color: Colors.deepPurple, fontSize: 16),
                   ),
                 ),
               ),

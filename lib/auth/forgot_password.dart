@@ -37,7 +37,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme:
-            const IconThemeData(color: Colors.purple), // Back arrow color
+            const IconThemeData(color: Colors.deepPurple), // Back arrow color
       ),
       body: Container(
         margin: const EdgeInsets.all(24),
@@ -81,7 +81,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
               borderRadius: BorderRadius.circular(18),
               borderSide: BorderSide.none,
             ),
-            fillColor: Colors.purple.withOpacity(0.1),
+            fillColor: Colors.deepPurple.withOpacity(0.1),
             filled: true,
             prefixIcon: const Icon(Icons.email),
           ),
@@ -108,7 +108,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       style: ElevatedButton.styleFrom(
         shape: const StadiumBorder(),
         padding: const EdgeInsets.symmetric(vertical: 16),
-        backgroundColor: Colors.purple,
+        backgroundColor: Colors.deepPurple,
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),

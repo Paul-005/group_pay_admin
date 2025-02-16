@@ -50,79 +50,12 @@ class _StudentSelectionScreenState extends State<StudentSelectionScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Column(
-        children: [
-          // Apply to All Section
-          Card(
-            margin: EdgeInsets.all(16),
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-              side: BorderSide(
-                color: Colors.grey.withOpacity(0.2),
-              ),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.groups,
-                        size: 20,
-                        color: Colors.deepPurple,
-                      ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Student Distribution',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[800],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  CheckboxListTile(
-                    value: _applyToAll,
-                    onChanged: (value) {
-                      setState(() {
-                        _applyToAll = value ?? false;
-                        if (_applyToAll) {
-                          _selectedStudents.clear();
-                          _selectAll = false;
-                        }
-                      });
-                    },
-                    title: Text(
-                      'Apply to All Students',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[800],
-                      ),
-                    ),
-                    subtitle: Text(
-                      'If checked, the post will be sent to every student automatically',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    activeColor: Colors.deepPurple,
-                    contentPadding: EdgeInsets.zero,
-                    controlAffinity: ListTileControlAffinity.leading,
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Manual Selection Section
-          Expanded(
-            child: Card(
-              margin: EdgeInsets.fromLTRB(16, 0, 16, 16),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Manual Selection Section
+            Card(
+              margin: EdgeInsets.fromLTRB(16, 5, 16, 16),
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
@@ -130,92 +63,57 @@ class _StudentSelectionScreenState extends State<StudentSelectionScreen> {
                   color: Colors.grey.withOpacity(0.2),
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.person_search,
-                              size: 20,
-                              color: Colors.deepPurple,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Manual Selection',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[800],
-                              ),
-                            ),
-                            Spacer(),
-                            Text(
-                              '${_selectedStudents.length} selected',
-                              style: TextStyle(
-                                color: Colors.deepPurple,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                        Icon(
+                          Icons.person_search,
+                          size: 20,
+                          color: Colors.deepPurple,
                         ),
-                        SizedBox(height: 16),
-                        // Search Bar
-                        TextField(
-                          controller: _searchController,
-                          onChanged: (value) => setState(() {}),
-                          decoration: InputDecoration(
-                            hintText: 'Search students...',
-                            prefixIcon: Icon(Icons.search, color: Colors.grey),
-                            filled: true,
-                            fillColor: Colors.grey[100],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide.none,
-                            ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Student Distrubution',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[800],
                           ),
                         ),
-                        SizedBox(height: 16),
-                        // Department Filters
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: ['All', 'Computer Science', 'Electronics']
-                                .map((filter) {
-                              return Padding(
-                                padding: EdgeInsets.only(right: 8),
-                                child: ChoiceChip(
-                                  label: Text(filter),
-                                  selected: _selectedFilter == filter,
-                                  onSelected: (selected) {
-                                    setState(() {
-                                      _selectedFilter = filter;
-                                    });
-                                  },
-                                  selectedColor: Colors.deepPurple,
-                                  labelStyle: TextStyle(
-                                    color: _selectedFilter == filter
-                                        ? Colors.white
-                                        : Colors.grey[800],
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                        Spacer(),
+                        Text(
+                          '${_selectedStudents.length} selected',
+                          style: TextStyle(
+                            color: Colors.deepPurple,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  // Select All Option
-                  if (!_applyToAll)
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      child: CheckboxListTile(
+                    SizedBox(height: 16),
+                    // Search Bar
+                    TextField(
+                      controller: _searchController,
+                      onChanged: (value) => setState(() {}),
+                      decoration: InputDecoration(
+                        hintText: 'Search students...',
+                        prefixIcon: Icon(Icons.search, color: Colors.grey),
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    // Select All Option
+                    if (!_applyToAll)
+                      CheckboxListTile(
                         value: _selectAll,
                         onChanged: (value) {
                           setState(() {
@@ -229,7 +127,7 @@ class _StudentSelectionScreenState extends State<StudentSelectionScreen> {
                           });
                         },
                         title: Text(
-                          'Select All Filtered Students',
+                          'Select All Students',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.grey[800],
@@ -239,115 +137,99 @@ class _StudentSelectionScreenState extends State<StudentSelectionScreen> {
                         contentPadding: EdgeInsets.zero,
                         controlAffinity: ListTileControlAffinity.leading,
                       ),
-                    ),
-                  // Students List
-                  Expanded(
-                    child: !_applyToAll
-                        ? ListView.builder(
-                            padding: EdgeInsets.all(16),
-                            itemCount: filteredStudents.length,
-                            itemBuilder: (context, index) {
-                              final student = filteredStudents[index];
-                              return Card(
-                                elevation: 0,
-                                color: Colors.grey[100],
-                                margin: EdgeInsets.only(bottom: 8),
-                                child: CheckboxListTile(
-                                  value: _selectedStudents
-                                      .contains(student['id'].toString()),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      if (value ?? false) {
+                    SizedBox(height: 16),
+                    // Students List
+                    if (!_applyToAll) ...[
+                      ...filteredStudents.map((student) => Padding(
+                            padding: EdgeInsets.only(bottom: 8),
+                            child: Card(
+                              elevation: 0,
+                              color: Colors.grey[100],
+                              child: CheckboxListTile(
+                                value: _selectedStudents
+                                    .contains(student['id'].toString()),
+                                onChanged: (value) {
+                                  setState(() {
+                                    if (value ?? false) {
+                                      _selectedStudents
+                                          .add(student['id'].toString());
+                                    } else {
+                                      _selectedStudents
+                                          .remove(student['id'].toString());
+                                    }
+                                    _selectAll = filteredStudents.every((s) =>
                                         _selectedStudents
-                                            .add(student['id'].toString());
-                                      } else {
-                                        _selectedStudents
-                                            .remove(student['id'].toString());
-                                      }
-                                      _selectAll = filteredStudents.every((s) =>
-                                          _selectedStudents
-                                              .contains(s['id'].toString()));
-                                    });
-                                  },
-                                  title: Text(
-                                    student['name'],
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey[800],
-                                    ),
+                                            .contains(s['id'].toString()));
+                                  });
+                                },
+                                title: Text(
+                                  student['name'],
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[800],
                                   ),
-                                  subtitle: Text(
-                                    '${student['department']} - Year ${student['year']}',
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                  activeColor: Colors.deepPurple,
-                                  controlAffinity:
-                                      ListTileControlAffinity.leading,
                                 ),
-                              );
-                            },
-                          )
-                        : Center(
-                            child: Text(
-                              'Manual selection disabled when applying to all students',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontStyle: FontStyle.italic,
+                                subtitle: Text(
+                                  '${student['department']} - Year ${student['year']}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                                activeColor: Colors.deepPurple,
+                                controlAffinity:
+                                    ListTileControlAffinity.leading,
                               ),
                             ),
+                          )),
+                    ] else
+                      Center(
+                        child: Text(
+                          'Manual selection disabled when applying to all students',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontStyle: FontStyle.italic,
                           ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              height: 56,
+              margin: EdgeInsets.all(16),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Handle next action
+                  if (_applyToAll || _selectedStudents.isNotEmpty) {
+                    // Navigate to next screen or process selection
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.deepPurple,
+                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 5,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(
-                'Back',
-                style: TextStyle(
-                  color: Colors.deepPurple,
-                  fontWeight: FontWeight.bold,
                 ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                // Handle next action
-                if (_applyToAll || _selectedStudents.isNotEmpty) {
-                  // Navigate to next screen or process selection
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                'Next',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.add_rounded,
+                      size: 24,
+                      color: Colors.white,
+                    ),
+                    SizedBox(width: 12),
+                    Text(
+                      'Create Post',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
