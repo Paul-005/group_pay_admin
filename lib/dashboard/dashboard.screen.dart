@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:group_pay_admin/dashboard/manage_post.screen.dart';
 import 'package:group_pay_admin/dashboard/post.dart';
+import 'package:group_pay_admin/settings/notification.screen.dart';
 
 class PostCard extends StatelessWidget {
   final String title;
@@ -170,23 +171,35 @@ class DashboardScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
               color: Colors.deepPurple,
             )),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications),
+            color: Colors.deepPurple,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => EmptyNotificationsScreen(),
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView(
         padding: EdgeInsets.all(16),
         children: [
           PostCard(
-            title: 'Team Lunch',
+            title: 'Tech Fest',
             description:
-                'Monthly team lunch at Restaurant XYZ. Please pay your share by Friday.',
+                'Event collection for Tech Fest 2025. Please contribute.',
             totalAmount: 2500,
             totalMembers: 10,
             paidMembers: 6,
           ),
           SizedBox(height: 16),
           PostCard(
-            title: 'Office Party Decorations',
-            description:
-                'Collection for Christmas party decorations and snacks.',
+            title: 'Collage Trip',
+            description: 'Additional amount for collage trip to Goa.',
             totalAmount: 5000,
             totalMembers: 15,
             paidMembers: 8,

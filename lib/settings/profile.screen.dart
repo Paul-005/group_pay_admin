@@ -6,7 +6,7 @@ import 'package:group_pay_admin/settings/profile_edit.sreen.dart';
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({Key? key}) : super(key: key);
 
-  var name = 'User';
+  var name = 'Paul';
   void getUserName() {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {

@@ -15,11 +15,18 @@ class _LoginPageState extends State<LoginPage> {
   String password = '';
   String errorMessage = '';
 
+  bool isLoading = false;
+
   Future<void> _login(String emailAddress, String password) async {
-    print('Email: $emailAddress, Password: $password');
     try {
-      FirebaseAuth.instance
+      setState(() {
+        isLoading = true;
+      });
+      await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: emailAddress, password: password);
+      setState(() {
+        isLoading = false;
+      });
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -27,6 +34,9 @@ class _LoginPageState extends State<LoginPage> {
           content: Text(e.message ?? 'An unknown error occurred.'),
         ),
       );
+      setState(() {
+        isLoading = false;
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -34,6 +44,9 @@ class _LoginPageState extends State<LoginPage> {
           content: const Text('An unexpected error occurred.'),
         ),
       );
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -55,14 +68,22 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  _loading() {
+    return CircularProgressIndicator(
+      valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+    );
+  }
+
   _header(context) {
-    return const Column(
+    return Column(
       children: [
         Text(
           "Welcome Admin",
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
         Text("Enter your credential to login"),
+        SizedBox(height: 20),
+        if (isLoading) _loading(),
       ],
     );
   }

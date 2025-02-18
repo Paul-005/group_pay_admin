@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 
 class StudentListScreen extends StatelessWidget {
   final List<Student> students = [
-    Student(name: 'Student 1', amount: 100, category: 'Trip'),
-    Student(name: 'Student 2', amount: 150, category: 'Trip'),
-    Student(name: 'Student 3', amount: 200, category: 'Trip'),
-    Student(name: 'Student 3', amount: 200, category: 'Trip'),
-    Student(name: 'Student 3', amount: 200, category: 'Trip')
+    Student(name: 'Student 1', amount: 100, category: '25/2/2025'),
+    Student(name: 'Student 2', amount: 150, category: '25/2/2025'),
+    Student(name: 'Student 3', amount: 200, category: '25/2/2025'),
+    Student(name: 'Student 3', amount: 200, category: '25/2/2025'),
+    Student(name: 'Student 3', amount: 200, category: '25/2/2025')
   ];
 
   @override
@@ -14,7 +14,8 @@ class StudentListScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Students Requests',
-            style: TextStyle(fontWeight: FontWeight.bold)),
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: Colors.deepPurple)),
         actions: [
           IconButton(
             icon: Icon(Icons.share),
