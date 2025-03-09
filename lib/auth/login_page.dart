@@ -4,7 +4,9 @@ import 'package:group_pay_admin/auth/forgot_password.dart';
 import 'package:group_pay_admin/auth/signup_page.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final VoidCallback? onSignupPressed;
+
+  const LoginPage({super.key, this.onSignupPressed});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -69,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _loading() {
-    return CircularProgressIndicator(
+    return const CircularProgressIndicator(
       valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
     );
   }
@@ -77,12 +79,12 @@ class _LoginPageState extends State<LoginPage> {
   _header(context) {
     return Column(
       children: [
-        Text(
+        const Text(
           "Welcome Admin",
           style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
-        Text("Enter your credential to login"),
-        SizedBox(height: 20),
+        const Text("Enter your credential to login"),
+        const SizedBox(height: 20),
         if (isLoading) _loading(),
       ],
     );
@@ -159,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => ForgotPasswordPage()),
+          MaterialPageRoute(builder: (context) => const ForgotPasswordPage()),
         );
       },
       child: const Text(
@@ -176,10 +178,9 @@ class _LoginPageState extends State<LoginPage> {
         const Text("Dont have an account? "),
         TextButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SignupPage()),
-              );
+              if (widget.onSignupPressed != null) {
+                widget.onSignupPressed!();
+              }
             },
             child: const Text(
               "Sign Up",

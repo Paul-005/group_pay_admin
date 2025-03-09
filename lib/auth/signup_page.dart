@@ -4,7 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+  final VoidCallback? onLoginPressed;
+  const SignupPage({super.key, this.onLoginPressed});
 
   @override
   State<SignupPage> createState() => _SignupPageState();
@@ -124,7 +125,7 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
                   const SizedBox(
-                    height: 20,
+                    height: 10,
                   ),
                   Text(
                     "Create your account",
@@ -152,7 +153,7 @@ class _SignupPageState extends State<SignupPage> {
                       });
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   TextField(
                     style: TextStyle(
                       color: inputIsValid ? Colors.black : Colors.red,
@@ -173,7 +174,7 @@ class _SignupPageState extends State<SignupPage> {
                       });
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   TextField(
                     style: TextStyle(
                       color: inputIsValid ? Colors.black : Colors.red,
@@ -194,7 +195,7 @@ class _SignupPageState extends State<SignupPage> {
                       });
                     },
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 10),
                   TextField(
                     style: TextStyle(
                       color: inputIsValid ? Colors.black : Colors.red,
@@ -258,7 +259,9 @@ class _SignupPageState extends State<SignupPage> {
                   const Text("Already have an account?"),
                   TextButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        if (widget.onLoginPressed != null) {
+                          widget.onLoginPressed!();
+                        }
                       },
                       child: const Text(
                         "Login",

@@ -189,13 +189,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           //     _selectedDate != null) {
                           //   // Handle form submission
                           // }
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => StudentSelectionScreen(),
-                            ),
-                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepPurple,
@@ -207,19 +200,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            Icon(
+                              Icons.post_add,
+                              size: 24,
+                              color: Colors.white,
+                            ),
+                            SizedBox(width: 12),
                             Text(
-                              'Next',
+                              'Post',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
-                            ),
-                            SizedBox(width: 12),
-                            Icon(
-                              Icons.arrow_forward,
-                              size: 24,
-                              color: Colors.white,
                             ),
                           ],
                         ),

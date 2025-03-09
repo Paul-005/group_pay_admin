@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:group_pay_admin/settings/notification.screen.dart';
 import 'package:group_pay_admin/settings/profile_edit.sreen.dart';
+import 'package:group_pay_admin/settings/update_bank.screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({Key? key}) : super(key: key);
@@ -78,15 +79,15 @@ class ProfileScreen extends StatelessWidget {
               },
             ),
             ProfileMenu(
-              icon: Icons.settings_outlined,
-              text: "Settings",
-              press: () {},
+              icon: Icons.account_balance,
+              text: "Change Bank Details",
+              press: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return EditUpiIdPage();
+                }));
+              },
             ),
-            ProfileMenu(
-              icon: Icons.help_outline,
-              text: "Help Center",
-              press: () {},
-            ),
+
             ProfileMenu(
               icon: Icons.logout_outlined,
               text: "Log Out",
@@ -122,8 +123,7 @@ class ProfilePic extends StatelessWidget {
           children: [
             CircleAvatar(
               backgroundColor: Colors.grey[200],
-              backgroundImage: NetworkImage(
-                  "https://i.postimg.cc/0jqKB6mS/Profile-Image.png"),
+              backgroundImage: AssetImage('assets/profile.png'),
             ),
             Positioned(
               right: -8,

@@ -3,14 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:group_pay_admin/controllers/navbar.controller.dart'; // Import your BottomNavScreen
 
-class AddUpiIdPage extends StatefulWidget {
-  const AddUpiIdPage({Key? key}) : super(key: key);
+class EditUpiIdPage extends StatefulWidget {
+  const EditUpiIdPage({Key? key}) : super(key: key);
 
   @override
-  State<AddUpiIdPage> createState() => _AddUpiIdPageState();
+  State<EditUpiIdPage> createState() => _EditUpiIdPageState();
 }
 
-class _AddUpiIdPageState extends State<AddUpiIdPage> {
+class _EditUpiIdPageState extends State<EditUpiIdPage> {
   final TextEditingController _upiController = TextEditingController();
   bool _isValidUpi = false;
 
@@ -31,10 +31,9 @@ class _AddUpiIdPageState extends State<AddUpiIdPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add UPI ID',
+        title: const Text('Edit Bank Details',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: Colors.deepPurple,
             )),
         iconTheme: const IconThemeData(color: Colors.deepPurple),
       ),
@@ -83,10 +82,10 @@ class _AddUpiIdPageState extends State<AddUpiIdPage> {
                 ),
                 const SizedBox(height: 32),
                 const Text(
-                  'Add your Google Pay UPI ID',
+                  'Change your Google Pay UPI ID',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -95,7 +94,7 @@ class _AddUpiIdPageState extends State<AddUpiIdPage> {
                   'This will be used for receiving payments in GroupPay',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 14,
                     color: Colors.grey[600],
                   ),
                 ),
@@ -172,7 +171,7 @@ class _AddUpiIdPageState extends State<AddUpiIdPage> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: const Text(
-                    'Add UPI ID',
+                    'Change UPI ID',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
