@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:math';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -33,9 +35,53 @@ class _SignupPageState extends State<SignupPage> {
         email: email,
         password: password,
       );
-      setState(() {
-        inputIsValid = false;
-      });
+
+      try {
+        // Get current user from Firebase Auth
+        User? user = FirebaseAuth.instance.currentUser;
+
+        // Generate random 6-digit number
+        Random random = Random();
+        int randomNumber = 100000 +
+            random.nextInt(900000); // Generates between 100000 and 999999
+
+        // Get current timestamp
+        Timestamp createdAt = Timestamp.now();
+
+        // Create the document data
+        Map<String, dynamic> userData = {
+          'adminCode': randomNumber,
+          'bank_upi': '',
+          'createdAt': createdAt,
+          'email': user?.email,
+          'profile_completed': 1,
+          'uid': user?.uid,
+        };
+
+        // Add the document to Firestore
+        await FirebaseFirestore.instance
+            .collection('admin')
+            .doc(user?.uid)
+            .set(userData);
+
+        // add the group code to groups db
+        await FirebaseFirestore.instance
+            .collection('groups')
+            .doc(randomNumber.toString())
+            .set({
+          'admin': user?.uid,
+          'students': [],
+          'student_requests': [],
+        });
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(e.toString()),
+          ),
+        );
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: Colors.green,
