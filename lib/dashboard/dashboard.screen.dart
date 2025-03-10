@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:group_pay_admin/dashboard/admin_code.screen.dart';
 import 'package:group_pay_admin/dashboard/manage_post.screen.dart';
 import 'package:group_pay_admin/dashboard/post.dart';
 import 'package:group_pay_admin/settings/notification.screen.dart';
@@ -172,6 +173,17 @@ class DashboardScreen extends StatelessWidget {
               color: Colors.deepPurple,
             )),
         actions: [
+          IconButton(
+            icon: Icon(Icons.share),
+            color: Colors.deepPurple,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => AdminCodePage(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: Icon(Icons.notifications),
             color: Colors.deepPurple,

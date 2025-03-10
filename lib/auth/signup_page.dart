@@ -73,7 +73,15 @@ class _SignupPageState extends State<SignupPage> {
           'admin': user?.uid,
           'students': [],
           'student_requests': [],
+          'posts': [],
+          'no_of_students': 0,
         });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Account created successfully!'),
+          ),
+        );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

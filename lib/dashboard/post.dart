@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:group_pay_admin/dashboard/post_manage_students.screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CreatePostScreen extends StatefulWidget {
   @override
@@ -38,6 +40,81 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       setState(() {
         _selectedDate = picked;
       });
+    }
+  }
+
+  Future<void> _submitForm() async {
+    if (_formKey.currentState!.validate() && _selectedDate != null) {
+      // Get the values from the form
+      String title = _titleController.text;
+      String description = _descriptionController.text;
+      double amount = double.parse(_amountController.text);
+      DateTime lastDate = _selectedDate!;
+      // Get the current user's UID
+      String uid = FirebaseAuth.instance.currentUser!.uid;
+
+      // Get the admin document from the 'admins' collection
+      DocumentSnapshot adminDoc =
+          await FirebaseFirestore.instance.collection('admin').doc(uid).get();
+
+      // Get the adminCode from the document
+      String adminCode = adminDoc['adminCode'].toString();
+      String bankUpi = adminDoc['bank_upi'].toString();
+
+      DocumentSnapshot groupDoc = await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(adminCode)
+          .get();
+
+      String noOfStudents = groupDoc['no_of_students'].toString();
+      // Generate a unique ID for the post
+      String postId = FirebaseFirestore.instance.collection('posts').doc().id;
+
+      // Create a new post document in the 'posts' collection
+      await FirebaseFirestore.instance.collection('posts').doc(postId).set({
+        'postId': postId,
+        'title': title,
+        'description': description,
+        'amount': amount,
+        'lastDate': lastDate,
+        'createdAt': DateTime.now(),
+        'createdBy': FirebaseAuth.instance.currentUser!.uid,
+        'status': 'active',
+        'adminCode': adminCode,
+        'paid': [],
+        'unpaid': [],
+        'confirm': [],
+        'bank_upi': bankUpi,
+        'no_of_students': noOfStudents,
+      });
+
+      // Update the 'groups' collection
+      await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(adminCode)
+          .update({
+        'posts': FieldValue.arrayUnion([
+          {
+            'postId': postId,
+            'title': title,
+            'amount': amount,
+            'description': description,
+            'adminCode': adminCode,
+            'lastDate': lastDate,
+            'no_of_students': noOfStudents,
+          }
+        ])
+      });
+
+      // Show a success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Post created successfully!'),
+        ),
+      );
+
+      // Navigate to the manage students screen
+      Navigator.pop(context);
     }
   }
 
@@ -185,10 +262,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       height: 56,
                       child: ElevatedButton(
                         onPressed: () {
-                          // if (_formKey.currentState!.validate() &&
-                          //     _selectedDate != null) {
-                          //   // Handle form submission
-                          // }
+                          _submitForm();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.deepPurple,
