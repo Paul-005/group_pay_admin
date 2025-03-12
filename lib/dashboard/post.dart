@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:group_pay_admin/dashboard/post_manage_students.screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -44,7 +43,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   Future<void> _submitForm() async {
-    if (_formKey.currentState!.validate() && _selectedDate != null) {
+    if (_formKey.currentState!.validate() &&
+        _selectedDate != null &&
+        _descriptionController.text.isNotEmpty) {
       // Get the values from the form
       String title = _titleController.text;
       String description = _descriptionController.text;
@@ -115,6 +116,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
       // Navigate to the manage students screen
       Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please fill all required fields.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -154,9 +162,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         return null;
                       },
                     ),
-
                     SizedBox(height: 16),
-
                     _buildInputCard(
                       title: 'Amount per Person',
                       hint: 'Enter amount',
@@ -172,10 +178,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         return null;
                       },
                     ),
-
                     SizedBox(height: 16),
-
-                    // New Date Picker Card
                     Card(
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -245,19 +248,21 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         ),
                       ),
                     ),
-
                     SizedBox(height: 16),
-
                     _buildInputCard(
                       title: 'Description',
                       hint: 'Enter collection description',
                       icon: Icons.description,
                       controller: _descriptionController,
                       maxLines: 3,
+                      validator: (value) {
+                        if (value?.isEmpty ?? true) {
+                          return 'Please enter a description';
+                        }
+                        return null;
+                      },
                     ),
-
                     SizedBox(height: 32),
-
                     Container(
                       height: 56,
                       child: ElevatedButton(

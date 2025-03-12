@@ -19,6 +19,7 @@ class _SignupPageState extends State<SignupPage> {
 
   String errorMessage = '';
   bool inputIsValid = true;
+  bool _isLoading = false; // Add loading state
 
   Future<void> _signUp() async {
     if (password != confirmPassword) {
@@ -30,6 +31,10 @@ class _SignupPageState extends State<SignupPage> {
       );
       return;
     }
+
+    setState(() {
+      _isLoading = true; // Start loading
+    });
 
     try {
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -106,6 +111,10 @@ class _SignupPageState extends State<SignupPage> {
       );
       setState(() {
         inputIsValid = false;
+      });
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading
       });
     }
   }
@@ -227,33 +236,41 @@ class _SignupPageState extends State<SignupPage> {
                 ],
               ),
               Container(
-                  padding: const EdgeInsets.only(top: 3, left: 3),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (email.isEmpty ||
-                          password.isEmpty ||
-                          confirmPassword.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            backgroundColor: Colors.red,
-                            content: Text('Enter email and password'),
-                          ),
-                        );
-                        return;
-                      } else {
-                        _signUp();
-                      }
-                    },
-                    child: const Text(
-                      "Sign up",
-                      style: TextStyle(fontSize: 20, color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      shape: const StadiumBorder(),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.deepPurple,
-                    ),
-                  )),
+                padding: const EdgeInsets.only(top: 3, left: 3),
+                child: ElevatedButton(
+                  onPressed: _isLoading
+                      ? null // Disable button when loading
+                      : () {
+                          if (email.isEmpty ||
+                              password.isEmpty ||
+                              confirmPassword.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                backgroundColor: Colors.red,
+                                content: Text('Enter email and password'),
+                              ),
+                            );
+                            return;
+                          } else {
+                            _signUp();
+                          }
+                        },
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ) // Show loader
+                      : const Text(
+                          "Sign up",
+                          style: TextStyle(fontSize: 20, color: Colors.white),
+                        ),
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors.deepPurple,
+                  ),
+                ),
+              ),
               TextButton(
                 onPressed: () {},
                 child: Row(

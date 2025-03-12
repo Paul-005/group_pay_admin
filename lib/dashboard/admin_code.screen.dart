@@ -12,11 +12,12 @@ class AdminCodePage extends StatefulWidget {
 
 class _AdminCodePageState extends State<AdminCodePage> {
   // Generate a random 6-digit code for display
-  final String adminCode = '000000'; // In a real app, this would be dynamic
   bool _codeCopied = false;
 
+  String? _adminCode = "000000";
+
   void _copyCodeToClipboard() {
-    Clipboard.setData(ClipboardData(text: adminCode));
+    Clipboard.setData(ClipboardData(text: _adminCode!));
     setState(() {
       _codeCopied = true;
     });
@@ -30,8 +31,6 @@ class _AdminCodePageState extends State<AdminCodePage> {
       }
     });
   }
-
-  String? _adminCode;
 
   @override
   void initState() {
@@ -79,86 +78,105 @@ class _AdminCodePageState extends State<AdminCodePage> {
         iconTheme: const IconThemeData(color: Colors.deepPurple),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Your Admin Code',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.deepPurple,
-              ),
-            ),
-            const SizedBox(height: 30),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    spreadRadius: 1,
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ...(_adminCode ?? '------').split('').map((digit) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      width: 32,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Colors.indigo.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          digit,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.indigo.shade800,
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ],
-              ),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed: _adminCode != null ? _copyCodeToClipboard : null,
-              icon: Icon(_codeCopied ? Icons.check : Icons.copy),
-              label: Text(_codeCopied ? 'Copied!' : 'Copy Code'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _codeCopied ? Colors.green : Colors.white,
-                foregroundColor: _codeCopied ? Colors.white : Colors.indigo,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-            if (_codeCopied)
-              Padding(
-                padding: const EdgeInsets.only(top: 12),
-                child: Text(
-                  'Code copied to clipboard',
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text(
+                  'Your Admin Code',
                   style: TextStyle(
-                    color: Colors.green.shade100,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Share this code with your students to let them join your group.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 30),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ...(_adminCode ?? '------').split('').map((digit) {
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 5),
+                          width: 32,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.indigo.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: Text(
+                              digit,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.indigo.shade800,
+                              ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ],
                   ),
                 ),
-              ),
-          ],
+                const SizedBox(height: 30),
+                ElevatedButton.icon(
+                  onPressed: _adminCode != null ? _copyCodeToClipboard : null,
+                  icon: Icon(_codeCopied ? Icons.check : Icons.copy),
+                  label: Text(_codeCopied ? 'Copied!' : 'Copy Code'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _codeCopied ? Colors.green : Colors.white,
+                    foregroundColor: _codeCopied
+                        ? Colors.white
+                        : Colors.indigo, // Corrected typo here
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+                if (_codeCopied)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text(
+                      'Code copied to clipboard',
+                      style: TextStyle(
+                        color: Colors.green.shade100,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         ),
       ),
     );

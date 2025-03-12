@@ -3,6 +3,9 @@ import 'package:group_pay_admin/dashboard/admin_code.screen.dart';
 import 'package:group_pay_admin/dashboard/manage_post.screen.dart';
 import 'package:group_pay_admin/dashboard/post.dart';
 import 'package:group_pay_admin/settings/notification.screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart'; // Import intl package for date formatting
 
 class PostCard extends StatelessWidget {
   final String title;
@@ -10,6 +13,7 @@ class PostCard extends StatelessWidget {
   final double totalAmount;
   final int totalMembers;
   final int paidMembers;
+  final Timestamp? lastDate; // Add lastDate field
 
   const PostCard({
     Key? key,
@@ -18,6 +22,7 @@ class PostCard extends StatelessWidget {
     required this.totalAmount,
     required this.totalMembers,
     required this.paidMembers,
+    this.lastDate, // Make lastDate required
   }) : super(key: key);
 
   @override
@@ -87,45 +92,25 @@ class PostCard extends StatelessWidget {
             ),
           ),
 
-          // Payment progress bar
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Payment Progress',
-                      style: TextStyle(
-                        color: Colors.grey[700],
-                        fontWeight: FontWeight.bold,
-                      ),
+          // Last Date
+          if (lastDate != null)
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
+                  SizedBox(width: 8),
+                  Text(
+                    'Last Date: ${DateFormat('MMM dd, yyyy').format(lastDate!.toDate())}',
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 14,
                     ),
-                    Text(
-                      '$paidMembers/$totalMembers paid',
-                      style: TextStyle(
-                        color: Colors.deepPurple,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: paidMembers / totalMembers,
-                    backgroundColor: Colors.grey[200],
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(Colors.deepPurple),
-                    minHeight: 8,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          SizedBox(height: 8),
 
           // Footer with actions
           Padding(
@@ -161,7 +146,45 @@ class PostCard extends StatelessWidget {
 }
 
 // Example usage:
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
+  @override
+  _DashboardScreenState createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  String? _adminCode;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAdminCode();
+  }
+
+  Future<void> _fetchAdminCode() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // Handle the case where the user is not logged in
+      return;
+    }
+
+    final DocumentSnapshot adminDoc = await FirebaseFirestore.instance
+        .collection('admin')
+        .doc(user.uid)
+        .get();
+
+    if (adminDoc.exists) {
+      setState(() {
+        _adminCode = adminDoc.get('adminCode').toString();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Admin document does not exist for user ${user.uid}'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -197,27 +220,81 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: ListView(
-        padding: EdgeInsets.all(16),
-        children: [
-          PostCard(
-            title: 'Tech Fest',
-            description:
-                'Event collection for Tech Fest 2025. Please contribute.',
-            totalAmount: 2500,
-            totalMembers: 10,
-            paidMembers: 6,
-          ),
-          SizedBox(height: 16),
-          PostCard(
-            title: 'Collage Trip',
-            description: 'Additional amount for collage trip to Goa.',
-            totalAmount: 5000,
-            totalMembers: 15,
-            paidMembers: 8,
-          ),
-        ],
-      ),
+      body: _adminCode == null
+          ? Center(child: CircularProgressIndicator())
+          : StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('groups')
+                  .doc(_adminCode)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+
+                if (!snapshot.hasData || !snapshot.data!.exists) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.info_outline,
+                            size: 60, color: Colors.grey[400]),
+                        SizedBox(height: 16),
+                        Text(
+                          'No posts yet!',
+                          style:
+                              TextStyle(fontSize: 20, color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final groupData = snapshot.data!.data() as Map<String, dynamic>;
+                final posts = groupData['posts'] as List<dynamic>? ?? [];
+
+                if (posts.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.info_outline,
+                            size: 60, color: Colors.grey[400]),
+                        SizedBox(height: 16),
+                        Text(
+                          'No posts yet!',
+                          style:
+                              TextStyle(fontSize: 20, color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: EdgeInsets.all(16),
+                  itemCount: posts.length,
+                  itemBuilder: (context, index) {
+                    final post = posts[index] as Map<String, dynamic>;
+                    return Column(
+                      children: [
+                        PostCard(
+                          title: post['title'] ?? 'No Title',
+                          description: post['description'] ?? 'No Description',
+                          totalAmount: (post['amount'] as num?)?.toDouble() ??
+                              0.0, // Ensure it's double
+                          totalMembers: 1,
+                          paidMembers: 0,
+                          lastDate:
+                              post['lastDate'] as Timestamp?, // Pass lastDate
+                        ),
+                        SizedBox(height: 16),
+                      ],
+                    );
+                  },
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
