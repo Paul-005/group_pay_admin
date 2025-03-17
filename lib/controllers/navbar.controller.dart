@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:group_pay_admin/dashboard/dashboard.screen.dart';
-import 'package:group_pay_admin/home/student_list.dart';
+import 'package:group_pay_admin/manage/student_list.dart';
 import 'package:group_pay_admin/settings/profile.screen.dart';
 
 const Color inActiveIconColor = Color(0xFFB6B6B6);

@@ -122,31 +122,14 @@ class ProfilePic extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             CircleAvatar(
-              backgroundColor: Colors.grey[200],
-              backgroundImage: AssetImage('assets/profile.png'),
-            ),
-            Positioned(
-              right: -8,
-              bottom: -8,
-              child: Container(
-                height: 38,
-                width: 38,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: IconButton(
-                  icon: Icon(Icons.camera_alt_outlined,
-                      size: 20, color: Colors.deepPurple),
-                  onPressed: () {},
+              child: Text(
+                // Get the first letter of the name
+                'P',
+
+                style: TextStyle(
+                  fontSize: 48,
+                  color: Colors.deepPurpleAccent,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),

@@ -112,6 +112,46 @@ class PostCard extends StatelessWidget {
             ),
           SizedBox(height: 8),
 
+          // Payment progress bar
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Payment Progress',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '10/20 paid',
+                      style: TextStyle(
+                        color: Colors.deepPurple,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: 10 / 20,
+                    backgroundColor: Colors.grey[200],
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+                    minHeight: 8,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
           // Footer with actions
           Padding(
             padding: EdgeInsets.all(16),
