@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:group_pay_admin/auth/forgot_password.dart';
-import 'package:group_pay_admin/auth/signup_page.dart';
 
 class LoginPage extends StatefulWidget {
   final VoidCallback? onSignupPressed;

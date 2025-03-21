@@ -10,6 +10,7 @@ class StudentListScreen extends StatefulWidget {
 
 class _StudentListScreenState extends State<StudentListScreen> {
   List<Student> students = [];
+  List<Student> acceptedStudents = []; // New list for accepted students
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -17,6 +18,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
   void initState() {
     super.initState();
     fetchStudentRequests();
+    fetchAcceptedStudents(); // Add this
   }
 
   Future<void> fetchStudentRequests() async {
@@ -49,15 +51,48 @@ class _StudentListScreenState extends State<StudentListScreen> {
     }
   }
 
+  Future<void> fetchAcceptedStudents() async {
+    final User? user = _auth.currentUser;
+    final String adminUid = user?.uid ?? 'null';
+
+    DocumentSnapshot adminDoc =
+        await _firestore.collection('admin').doc(adminUid).get();
+
+    if (adminDoc.exists) {
+      List<dynamic>? acceptedStudentsList =
+          adminDoc.get('students') as List<dynamic>?;
+
+      if (acceptedStudentsList != null) {
+        setState(() {
+          acceptedStudents = acceptedStudentsList.map((student) {
+            return Student(
+              name: student['email'] ?? 'No Email',
+              amount: 0.0,
+              category: student['createdAt'] != null
+                  ? DateTime.fromMillisecondsSinceEpoch(
+                          student['createdAt'].seconds * 1000)
+                      .toString()
+                  : 'No Date',
+              uid: student['uid'] ?? 'null',
+            );
+          }).toList();
+        });
+      }
+    }
+  }
+
   Future<void> _refreshData() async {
-    await fetchStudentRequests();
+    await Future.wait([
+      fetchStudentRequests(),
+      fetchAcceptedStudents(),
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Students Requests',
+        title: Text('Students Management',
             style: TextStyle(
                 fontWeight: FontWeight.bold, color: Colors.deepPurple)),
         actions: [
@@ -72,26 +107,135 @@ class _StudentListScreenState extends State<StudentListScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _refreshData,
-        child: students.isEmpty
-            ? Center(
-                child: Lottie.asset(
-                  'assets/empty_list.json', // Path to your Lottie JSON file
-                  width: 200,
-                  height: 200,
-                  repeat: true,
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Only show Student Requests section if there are pending requests
+                if (students.isNotEmpty) ...[
+                  Text(
+                    'Student Requests',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: students.length,
+                    itemBuilder: (context, index) {
+                      return StudentCard(
+                        student: students[index],
+                        onConfirm: () => _confirmStudent(students[index]),
+                        onReject: () => _rejectStudent(students[index]),
+                      );
+                    },
+                  ),
+                  SizedBox(height: 32),
+                ],
+
+                // Accepted Students Section
+                Text(
+                  'Accepted Students',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple,
+                  ),
                 ),
-              )
-            : ListView.builder(
-                padding: EdgeInsets.all(16),
-                itemCount: students.length,
-                itemBuilder: (context, index) {
-                  return StudentCard(
-                    student: students[index],
-                    onConfirm: () => _confirmStudent(students[index]),
-                    onReject: () => _rejectStudent(students[index]),
-                  );
-                },
-              ),
+                SizedBox(height: 16),
+                acceptedStudents.isEmpty
+                    ? Center(
+                        child: Text(
+                          'No accepted students yet',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 16,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: acceptedStudents.length,
+                        itemBuilder: (context, index) {
+                          return Card(
+                            margin: EdgeInsets.only(bottom: 16),
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Container(
+                              padding: EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: Colors.deepPurple.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 24,
+                                    backgroundColor: Colors.deepPurple.shade50,
+                                    child: Text(
+                                      acceptedStudents[index]
+                                          .name[0]
+                                          .toUpperCase(),
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.deepPurple,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          acceptedStudents[index].name,
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.deepPurple,
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          acceptedStudents[index].category,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.deepPurple,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  _ActionButton(
+                                    onPressed: () => _removeAcceptedStudent(
+                                        acceptedStudents[index]),
+                                    icon: Icons.close,
+                                    color: Colors.red,
+                                    label: 'Remove',
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -187,6 +331,53 @@ class _StudentListScreenState extends State<StudentListScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Student Rejected'),
+        backgroundColor: Colors.red,
+      ),
+    );
+
+    await _refreshData();
+  }
+
+  Future<void> _removeAcceptedStudent(Student student) async {
+    final String adminUid = _auth.currentUser?.uid ?? 'null';
+
+    await _firestore.runTransaction((transaction) async {
+      DocumentReference adminDocRef =
+          _firestore.collection('admin').doc(adminUid);
+      DocumentSnapshot adminDoc = await transaction.get(adminDocRef);
+
+      if (!adminDoc.exists) {
+        throw Exception("Admin document does not exist!");
+      }
+
+      List<dynamic>? acceptedStudentsList =
+          adminDoc.get('students') as List<dynamic>?;
+
+      if (acceptedStudentsList == null) {
+        throw Exception("No accepted students found!");
+      }
+
+      int studentIndex = acceptedStudentsList
+          .indexWhere((std) => std['email'] == student.name);
+
+      if (studentIndex == -1) {
+        throw Exception("Student not found in accepted list!");
+      }
+
+      acceptedStudentsList.removeAt(studentIndex);
+
+      transaction.update(adminDocRef, {
+        'students': acceptedStudentsList,
+      });
+
+      DocumentReference studentDocRef =
+          _firestore.collection('students').doc(student.uid);
+      transaction.update(studentDocRef, {'accepted': 0});
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Student Removed'),
         backgroundColor: Colors.red,
       ),
     );
