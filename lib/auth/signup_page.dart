@@ -37,10 +37,15 @@ class _SignupPageState extends State<SignupPage> {
     });
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      // Create user with email and password
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      // Update the user's display name
+      await userCredential.user?.updateDisplayName(username);
 
       try {
         // Get current user from Firebase Auth
@@ -60,6 +65,7 @@ class _SignupPageState extends State<SignupPage> {
           'bank_upi': '',
           'createdAt': createdAt,
           'email': user?.email,
+          'name': username, // Add the username to Firestore
           'profile_completed': 1,
           'uid': user?.uid,
         };

@@ -13,7 +13,8 @@ class PostCard extends StatelessWidget {
   final double totalAmount;
   final int totalMembers;
   final int paidMembers;
-  final Timestamp? lastDate; // Add lastDate field
+  final Timestamp? lastDate;
+  final String id;
 
   const PostCard({
     Key? key,
@@ -22,7 +23,8 @@ class PostCard extends StatelessWidget {
     required this.totalAmount,
     required this.totalMembers,
     required this.paidMembers,
-    this.lastDate, // Make lastDate required
+    required this.lastDate,
+    required this.id,
   }) : super(key: key);
 
   @override
@@ -129,7 +131,7 @@ class PostCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '10/20 paid',
+                      '$paidMembers/$totalMembers paid',
                       style: TextStyle(
                         color: Colors.deepPurple,
                         fontWeight: FontWeight.bold,
@@ -141,7 +143,7 @@ class PostCard extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
-                    value: 10 / 20,
+                    value: paidMembers / totalMembers,
                     backgroundColor: Colors.grey[200],
                     valueColor:
                         AlwaysStoppedAnimation<Color>(Colors.deepPurple),
@@ -163,7 +165,7 @@ class PostCard extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PostDetailsScreen(),
+                        builder: (context) => PostDetailsScreen(postId: id),
                       ),
                     );
                   },
@@ -327,6 +329,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           paidMembers: 0,
                           lastDate:
                               post['lastDate'] as Timestamp?, // Pass lastDate
+                          id: post['postId'],
                         ),
                         SizedBox(height: 16),
                       ],

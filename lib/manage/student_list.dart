@@ -66,7 +66,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
         setState(() {
           acceptedStudents = acceptedStudentsList.map((student) {
             return Student(
-              name: student['email'] ?? 'No Email',
+              name: student['name'] ?? 'No Name',
               amount: 0.0,
               category: student['createdAt'] != null
                   ? DateTime.fromMillisecondsSinceEpoch(

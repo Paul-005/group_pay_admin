@@ -7,14 +7,6 @@ import 'package:group_pay_admin/settings/update_bank.screen.dart';
 class ProfileScreen extends StatelessWidget {
   ProfileScreen({Key? key}) : super(key: key);
 
-  var name = 'Paul';
-  void getUserName() {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      name = user.displayName!;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,84 +19,95 @@ class ProfileScreen extends StatelessWidget {
               TextStyle(fontWeight: FontWeight.bold, color: Colors.deepPurple),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Profile Header
-            Container(
-              padding: EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(32),
-                  bottomRight: Radius.circular(32),
+      body: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final user = snapshot.data;
+          final name = user?.displayName ?? 'User';
+
+          return Column(
+            children: [
+              // Profile Header
+              Container(
+                padding: EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(32),
+                    bottomRight: Radius.circular(32),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    ProfilePic(name: name),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Hi, $name",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: Column(
-                children: [
-                  const ProfilePic(),
-                  const SizedBox(height: 16),
-                  Text(
-                    "Hi, $name",
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+              const SizedBox(height: 24),
+
+              // Menu Items
+              ProfileMenu(
+                icon: Icons.person_outline,
+                text: "My Account",
+                press: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const ProfileEditPage(),
                     ),
-                  ),
-                ],
+                  );
+                },
               ),
-            ),
-            const SizedBox(height: 24),
+              ProfileMenu(
+                icon: Icons.notifications_outlined,
+                text: "Notifications",
+                press: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const EmptyNotificationsScreen(),
+                    ),
+                  );
+                },
+              ),
+              ProfileMenu(
+                icon: Icons.account_balance,
+                text: "Change Bank Details",
+                press: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return EditUpiIdPage();
+                  }));
+                },
+              ),
 
-            // Menu Items
-            ProfileMenu(
-              icon: Icons.person_outline,
-              text: "My Account",
-              press: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const ProfileEditPage(),
-                  ),
-                );
-              },
-            ),
-            ProfileMenu(
-              icon: Icons.notifications_outlined,
-              text: "Notifications",
-              press: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => const EmptyNotificationsScreen(),
-                  ),
-                );
-              },
-            ),
-            ProfileMenu(
-              icon: Icons.account_balance,
-              text: "Change Bank Details",
-              press: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return EditUpiIdPage();
-                }));
-              },
-            ),
-
-            ProfileMenu(
-              icon: Icons.logout_outlined,
-              text: "Log Out",
-              isDestructive: true,
-              press: () async {
-                await FirebaseAuth.instance.signOut();
-              },
-            ),
-          ],
-        ),
+              ProfileMenu(
+                icon: Icons.logout_outlined,
+                text: "Log Out",
+                isDestructive: true,
+                press: () async {
+                  await FirebaseAuth.instance.signOut();
+                },
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
 class ProfilePic extends StatelessWidget {
-  const ProfilePic({Key? key}) : super(key: key);
+  final String name;
+  const ProfilePic({Key? key, required this.name}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -123,9 +126,7 @@ class ProfilePic extends StatelessWidget {
           children: [
             CircleAvatar(
               child: Text(
-                // Get the first letter of the name
-                'P',
-
+                name.isNotEmpty ? name[0].toUpperCase() : 'U',
                 style: TextStyle(
                   fontSize: 48,
                   color: Colors.deepPurpleAccent,

@@ -58,16 +58,29 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       DocumentSnapshot adminDoc =
           await FirebaseFirestore.instance.collection('admin').doc(uid).get();
 
-      // Get the adminCode from the document
+      // Get the adminCode and bank_upi from the document
       String adminCode = adminDoc['adminCode'].toString();
       String bankUpi = adminDoc['bank_upi'].toString();
 
+      // Get the group document and accepted students
       DocumentSnapshot groupDoc = await FirebaseFirestore.instance
           .collection('groups')
           .doc(adminCode)
           .get();
 
-      String noOfStudents = groupDoc['no_of_students'].toString();
+      // Get all accepted students from admin document
+      List<dynamic> acceptedStudents = adminDoc['students'] ?? [];
+
+      // Create unpaid array with all accepted students
+      List<Map<String, dynamic>> unpaidStudents = acceptedStudents
+          .map((student) => {
+                'email': student['email'],
+                'uid': student['uid'],
+              })
+          .toList();
+
+      String noOfStudents = acceptedStudents.length.toString();
+
       // Generate a unique ID for the post
       String postId = FirebaseFirestore.instance.collection('posts').doc().id;
 
@@ -83,7 +96,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         'status': 'active',
         'adminCode': adminCode,
         'paid': [],
-        'unpaid': [],
+        'unpaid': unpaidStudents,
         'confirm': [],
         'bank_upi': bankUpi,
         'no_of_students': noOfStudents,

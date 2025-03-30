@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Add this import
+import 'package:intl/intl.dart'; // Add this import for date formatting
 
 class PostDetailsScreen extends StatefulWidget {
+  final String postId;
+
+  const PostDetailsScreen({Key? key, required this.postId}) : super(key: key);
+
   @override
   _PostDetailsScreenState createState() => _PostDetailsScreenState();
 }
@@ -8,6 +14,310 @@ class PostDetailsScreen extends StatefulWidget {
 class _PostDetailsScreenState extends State<PostDetailsScreen> {
   String _selectedFilter = 'All';
   final _searchController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: Text(
+          'Collection Details',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.deepPurple,
+          ),
+        ),
+        iconTheme: IconThemeData(color: Colors.deepPurple),
+        backgroundColor: Colors.white,
+        elevation: 0,
+      ),
+      body: StreamBuilder<DocumentSnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('posts')
+            .doc(widget.postId)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (!snapshot.hasData || !snapshot.data!.exists) {
+            return Center(child: Text('Post not found'));
+          }
+
+          final postData = snapshot.data!.data() as Map<String, dynamic>;
+
+          final title = postData['title'] ?? 'No Title';
+          final description = postData['description'] ?? 'No Description';
+          final amount = (postData['amount'] ?? 0.0).toDouble();
+          final status = postData['status'] ?? 'active';
+          final lastDate =
+              postData['lastDate'] as Timestamp; // Get the Timestamp object
+          final paid = (postData['paid'] as List?) ?? [];
+          final unpaid = (postData['unpaid'] as List?) ?? [];
+          final totalStudents = int.parse(postData['no_of_students']);
+          final paidCount = paid.length;
+          final totalAmount = amount * totalStudents;
+          final collectedAmount = amount * paidCount;
+          final progressPercentage = (paidCount / totalStudents) * 100;
+
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header Section
+                Container(
+                  padding: EdgeInsets.all(20),
+                  color: Colors.white,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[800],
+                              ),
+                            ),
+                          ),
+                          _buildStatusBadge(status),
+                        ],
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        description,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Amount per Student',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                '₹$amount',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.deepPurple,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                'Due Date',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                DateFormat('dd MMM yyyy').format(
+                                    lastDate.toDate()), // Format the Timestamp
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Progress Section with real data
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 16),
+                  padding: EdgeInsets.all(20),
+                  color: Colors.white,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Collection Progress',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '₹$collectedAmount / ₹$totalAmount',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                          Text(
+                            '${progressPercentage.toStringAsFixed(1)}%',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: progressPercentage / 100,
+                          backgroundColor: Colors.grey[200],
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+                          minHeight: 8,
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          _buildStatCard('Total Students',
+                              totalStudents.toString(), Icons.groups),
+                          _buildStatCard(
+                            'Paid',
+                            paidCount.toString(),
+                            Icons.check_circle,
+                          ),
+                          _buildStatCard(
+                            'Unpaid',
+                            unpaid.length.toString(),
+                            Icons.pending,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Students List Section with real data
+                Container(
+                  padding: EdgeInsets.all(20),
+                  color: Colors.white,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Student Payments',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[800],
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      // Search Bar
+                      TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search students...',
+                          prefixIcon: Icon(Icons.search, color: Colors.grey),
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      // Filter Chips
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: ['All', 'Paid', 'Unpaid'].map((filter) {
+                            return Padding(
+                              padding: EdgeInsets.only(right: 8),
+                              child: ChoiceChip(
+                                label: Text(filter),
+                                selected: _selectedFilter == filter,
+                                onSelected: (selected) {
+                                  setState(() {
+                                    _selectedFilter = filter;
+                                  });
+                                },
+                                selectedColor: Colors.deepPurple,
+                                labelStyle: TextStyle(
+                                  color: _selectedFilter == filter
+                                      ? Colors.white
+                                      : Colors.grey[800],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      // Students List
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: _selectedFilter == 'Paid'
+                            ? paid.length
+                            : _selectedFilter == 'Unpaid'
+                                ? unpaid.length
+                                : paid.length + unpaid.length,
+                        itemBuilder: (context, index) {
+                          final student = _selectedFilter == 'Paid'
+                              ? paid[index]
+                              : _selectedFilter == 'Unpaid'
+                                  ? unpaid[index]
+                                  : index < paid.length
+                                      ? paid[index]
+                                      : unpaid[index - paid.length];
+
+                          return _buildStudentCard(
+                            name: student['name'] ?? 'No Name',
+                            paid: _selectedFilter != 'Unpaid',
+                            amount: amount,
+                            date: _selectedFilter != 'Unpaid'
+                                ? 'Payment Date'
+                                : null,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   Widget _buildStatusBadge(String status) {
     Color backgroundColor;
@@ -56,250 +366,6 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: Text(
-          'Collection Details',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: Colors.deepPurple,
-          ),
-        ),
-        iconTheme: IconThemeData(color: Colors.deepPurple),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header Section
-            Container(
-              padding: EdgeInsets.all(20),
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Trip Fund Collection',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[800],
-                          ),
-                        ),
-                      ),
-                      _buildStatusBadge('Active'),
-                    ],
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Collection for the annual college trip including travel and accommodation expenses.',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Amount per Student',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            '₹100',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.deepPurple,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'Due Date',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            '25 Feb 2025',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[800],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Progress Section
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 16),
-              padding: EdgeInsets.all(20),
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Collection Progress',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[800],
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '₹8,000 / ₹10,000',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
-                        ),
-                      ),
-                      Text(
-                        '80%',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepPurple,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: LinearProgressIndicator(
-                      value: 0.8,
-                      backgroundColor: Colors.grey[200],
-                      valueColor:
-                          AlwaysStoppedAnimation<Color>(Colors.deepPurple),
-                      minHeight: 8,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildStatCard('Total Students', '50', Icons.groups),
-                      _buildStatCard('Paid', '40', Icons.check_circle),
-                      _buildStatCard('Unpaid', '10', Icons.pending),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            // Students List Section
-            Container(
-              padding: EdgeInsets.all(20),
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Student Payments',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.grey[800],
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  // Search Bar
-                  TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      hintText: 'Search students...',
-                      prefixIcon: Icon(Icons.search, color: Colors.grey),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  // Filter Chips
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: ['All', 'Paid', 'Unpaid'].map((filter) {
-                        return Padding(
-                          padding: EdgeInsets.only(right: 8),
-                          child: ChoiceChip(
-                            label: Text(filter),
-                            selected: _selectedFilter == filter,
-                            onSelected: (selected) {
-                              setState(() {
-                                _selectedFilter = filter;
-                              });
-                            },
-                            selectedColor: Colors.deepPurple,
-                            labelStyle: TextStyle(
-                              color: _selectedFilter == filter
-                                  ? Colors.white
-                                  : Colors.grey[800],
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  // Students List
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: 5, // Example count
-                    itemBuilder: (context, index) {
-                      return _buildStudentCard(
-                        name: 'Student ${index + 1}',
-                        paid: index < 3,
-                        amount: 100,
-                        date: index < 3 ? '15 Feb 2025' : null,
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
