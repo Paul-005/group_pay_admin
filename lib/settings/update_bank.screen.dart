@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:group_pay_admin/controllers/navbar.controller.dart'; // Import your BottomNavScreen
 
 class EditUpiIdPage extends StatefulWidget {
-  const EditUpiIdPage({Key? key}) : super(key: key);
+  const EditUpiIdPage({super.key});
 
   @override
   State<EditUpiIdPage> createState() => _EditUpiIdPageState();

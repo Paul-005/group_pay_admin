@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class CreatePostScreen extends StatefulWidget {
+  const CreatePostScreen({super.key});
+
   @override
   _CreatePostScreenState createState() => _CreatePostScreenState();
 }
@@ -14,6 +18,34 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
   DateTime? _selectedDate;
+
+  Future<void> sendGroupNotification({
+    required String title,
+    required String description,
+    required String groupCode,
+    String amount = '',
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.1.10:3000/send-group-notification'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'title': title,
+          'description': description,
+          'amount': amount,
+          'groupCode': groupCode,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Notification sent successfully: ${response.body}');
+      } else {
+        print('Error sending notification: ${response.body}');
+      }
+    } catch (e) {
+      print('Exception occurred: $e');
+    }
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -63,7 +95,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       String bankUpi = adminDoc['bank_upi'].toString();
 
       // Get the group document and accepted students
-      DocumentSnapshot groupDoc = await FirebaseFirestore.instance
+      await FirebaseFirestore.instance
           .collection('groups')
           .doc(adminCode)
           .get();
@@ -119,6 +151,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           }
         ])
       });
+
+      // Send a notification to all accepted students
+      await sendGroupNotification(
+        title: title,
+        description: description,
+        groupCode: adminCode,
+        amount: amount.toString(),
+      );
 
       // Show a success message
       ScaffoldMessenger.of(context).showSnackBar(
@@ -276,7 +316,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       },
                     ),
                     SizedBox(height: 32),
-                    Container(
+                    SizedBox(
                       height: 56,
                       child: ElevatedButton(
                         onPressed: () {

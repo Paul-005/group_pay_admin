@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Add this import
 import 'package:intl/intl.dart'; // Add this import for date formatting
+import 'package:firebase_auth/firebase_auth.dart';
 
 class PostDetailsScreen extends StatefulWidget {
   final String postId;
 
-  const PostDetailsScreen({Key? key, required this.postId}) : super(key: key);
+  const PostDetailsScreen({
+    Key? key,
+    required this.postId,
+  }) : super(key: key);
 
   @override
   _PostDetailsScreenState createState() => _PostDetailsScreenState();
@@ -14,6 +18,62 @@ class PostDetailsScreen extends StatefulWidget {
 class _PostDetailsScreenState extends State<PostDetailsScreen> {
   String _selectedFilter = 'All';
   final _searchController = TextEditingController();
+
+  Future<void> _deletePost(String postId) async {
+    try {
+      // Get current user
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      // Get admin document to find the admin code
+      final adminDoc = await FirebaseFirestore.instance
+          .collection('admin')
+          .doc(user.uid)
+          .get();
+
+      if (!adminDoc.exists) return;
+
+      final adminCode = adminDoc.get('adminCode').toString();
+
+      // Get the group document
+      final groupDoc = await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(adminCode)
+          .get();
+
+      if (!groupDoc.exists) return;
+
+      // Get current posts array
+      List<dynamic> currentPosts = groupDoc.get('posts') ?? [];
+
+      // Remove the post with matching postId
+      currentPosts.removeWhere((post) => post['postId'] == postId);
+
+      // Update the document with new posts array
+      await FirebaseFirestore.instance
+          .collection('groups')
+          .doc(adminCode)
+          .update({'posts': currentPosts});
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.green,
+          content: Text('Post deleted successfully'),
+        ),
+      );
+
+      // Navigate back
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text('Error deleting post: $e'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +90,43 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
         iconTheme: IconThemeData(color: Colors.deepPurple),
         backgroundColor: Colors.white,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () {
+              // Show confirmation dialog
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Delete Post'),
+                    content: const Text(
+                      'Are you sure you want to delete this post? This action cannot be undone.',
+                    ),
+                    actions: [
+                      TextButton(
+                        child: const Text('Cancel'),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      TextButton(
+                        child: const Text(
+                          'Delete',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          // Call delete function with the post ID
+                          _deletePost(widget
+                              .postId); // You'll need to add postId to the widget
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance

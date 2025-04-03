@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:lottie/lottie.dart';
 
 class StudentListScreen extends StatefulWidget {
+  const StudentListScreen({super.key});
+
   @override
   _StudentListScreenState createState() => _StudentListScreenState();
 }
@@ -392,11 +394,11 @@ class StudentCard extends StatelessWidget {
   final VoidCallback onReject;
 
   const StudentCard({
-    Key? key,
+    super.key,
     required this.student,
     required this.onConfirm,
     required this.onReject,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AdminCodePage extends StatefulWidget {
-  const AdminCodePage({Key? key}) : super(key: key);
+  const AdminCodePage({super.key});
 
   @override
   State<AdminCodePage> createState() => _AdminCodePageState();
@@ -142,7 +142,7 @@ class _AdminCodePageState extends State<AdminCodePage> {
                             ),
                           ),
                         );
-                      }).toList(),
+                      }),
                     ],
                   ),
                 ),

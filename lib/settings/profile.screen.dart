@@ -5,7 +5,7 @@ import 'package:group_pay_admin/settings/profile_edit.sreen.dart';
 import 'package:group_pay_admin/settings/update_bank.screen.dart';
 
 class ProfileScreen extends StatelessWidget {
-  ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -107,7 +107,7 @@ class ProfileScreen extends StatelessWidget {
 
 class ProfilePic extends StatelessWidget {
   final String name;
-  const ProfilePic({Key? key, required this.name}) : super(key: key);
+  const ProfilePic({super.key, required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -143,12 +143,12 @@ class ProfilePic extends StatelessWidget {
 
 class ProfileMenu extends StatelessWidget {
   const ProfileMenu({
-    Key? key,
+    super.key,
     required this.text,
     required this.icon,
     this.press,
     this.isDestructive = false,
-  }) : super(key: key);
+  });
 
   final String text;
   final IconData icon;
