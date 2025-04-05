@@ -70,11 +70,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
             return Student(
               name: student['name'] ?? 'No Name',
               amount: 0.0,
-              category: student['createdAt'] != null
-                  ? DateTime.fromMillisecondsSinceEpoch(
-                          student['createdAt'].seconds * 1000)
-                      .toString()
-                  : 'No Date',
+              category: student['email'] ?? 'No Name',
               uid: student['uid'] ?? 'null',
             );
           }).toList();
@@ -94,18 +90,10 @@ class _StudentListScreenState extends State<StudentListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Students Management',
+        backgroundColor: Colors.white,
+        title: Text('Manage Students',
             style: TextStyle(
                 fontWeight: FontWeight.bold, color: Colors.deepPurple)),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.share),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Share link to invite')));
-            },
-          ),
-        ],
       ),
       body: RefreshIndicator(
         onRefresh: _refreshData,
@@ -167,68 +155,89 @@ class _StudentListScreenState extends State<StudentListScreen> {
                         physics: NeverScrollableScrollPhysics(),
                         itemCount: acceptedStudents.length,
                         itemBuilder: (context, index) {
-                          return Card(
-                            margin: EdgeInsets.only(bottom: 16),
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Container(
-                              padding: EdgeInsets.all(16),
+                          return Dismissible(
+                            key: Key(acceptedStudents[index].uid),
+                            direction: DismissDirection.endToStart,
+                            background: Container(
+                              alignment: Alignment.centerRight,
+                              padding: EdgeInsets.only(right: 20),
                               decoration: BoxDecoration(
-                                color: Colors.deepPurple.withOpacity(0.1),
+                                color: Colors.red,
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 24,
-                                    backgroundColor: Colors.deepPurple.shade50,
-                                    child: Text(
-                                      acceptedStudents[index]
-                                          .name[0]
-                                          .toUpperCase(),
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.deepPurple,
+                              child: Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                            ),
+                            onDismissed: (direction) {
+                              _removeAcceptedStudent(acceptedStudents[index]);
+                            },
+                            child: Card(
+                              margin: EdgeInsets.only(bottom: 16),
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Container(
+                                padding: EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.deepPurple.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Row(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 24,
+                                      backgroundColor:
+                                          Colors.deepPurple.shade50,
+                                      child: Text(
+                                        acceptedStudents[index]
+                                            .name[0]
+                                            .toUpperCase(),
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.deepPurple,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          acceptedStudents[index].name,
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.deepPurple,
+                                    SizedBox(width: 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            acceptedStudents[index].name,
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.deepPurple,
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(height: 4),
-                                        Text(
-                                          acceptedStudents[index].category,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.deepPurple,
-                                            fontWeight: FontWeight.w500,
+                                          SizedBox(height: 4),
+                                          Text(
+                                            acceptedStudents[index].category,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.deepPurple,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                  _ActionButton(
-                                    onPressed: () => _removeAcceptedStudent(
-                                        acceptedStudents[index]),
-                                    icon: Icons.close,
-                                    color: Colors.red,
-                                    label: 'Remove',
-                                  ),
-                                ],
+                                    _ActionButton(
+                                      onPressed: () => _removeAcceptedStudent(
+                                          acceptedStudents[index]),
+                                      icon: Icons.close,
+                                      color: Colors.red,
+                                      label: 'Remove',
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           );

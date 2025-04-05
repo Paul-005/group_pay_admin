@@ -55,6 +55,9 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
           .doc(adminCode)
           .update({'posts': currentPosts});
 
+      // Delete the post from the 'posts' collection
+      await FirebaseFirestore.instance.collection('posts').doc(postId).delete();
+
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -301,8 +304,11 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          _buildStatCard('Total Students',
-                              totalStudents.toString(), Icons.groups),
+                          _buildStatCard(
+                            'Total Students',
+                            totalStudents.toString(),
+                            Icons.groups,
+                          ),
                           _buildStatCard(
                             'Paid',
                             paidCount.toString(),
@@ -397,9 +403,13 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
 
                           return _buildStudentCard(
                             name: student['name'] ?? 'No Name',
-                            paid: _selectedFilter != 'Unpaid',
+                            paid: _selectedFilter == 'Paid' ||
+                                (_selectedFilter == 'All' &&
+                                    index < paid.length),
                             amount: amount,
-                            date: _selectedFilter != 'Unpaid'
+                            date: _selectedFilter == 'Paid' ||
+                                    (_selectedFilter == 'All' &&
+                                        index < paid.length)
                                 ? 'Payment Date'
                                 : null,
                           );

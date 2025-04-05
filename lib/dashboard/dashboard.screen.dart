@@ -10,25 +10,26 @@ import 'package:intl/intl.dart'; // Import intl package for date formatting
 class PostCard extends StatelessWidget {
   final String title;
   final String description;
-  final double totalAmount;
-  final int totalMembers;
-  final int paidMembers;
+  final double amount;
+  final int paidCount;
+  final int totalStudents;
   final Timestamp? lastDate;
-  final String id;
+  final String postId;
 
   const PostCard({
     Key? key,
     required this.title,
     required this.description,
-    required this.totalAmount,
-    required this.totalMembers,
-    required this.paidMembers,
+    required this.amount,
+    required this.paidCount,
+    required this.totalStudents,
     required this.lastDate,
-    required this.id,
+    required this.postId,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final double progress = totalStudents > 0 ? paidCount / totalStudents : 0.0;
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -69,7 +70,7 @@ class PostCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    'Rs. ${totalAmount.toStringAsFixed(0)}',
+                    'Rs. ${amount.toStringAsFixed(0)}',
                     style: TextStyle(
                       color: Colors.deepPurple,
                       fontWeight: FontWeight.bold,
@@ -131,7 +132,7 @@ class PostCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      '$paidMembers/$totalMembers paid',
+                      '$paidCount/$totalStudents paid',
                       style: TextStyle(
                         color: Colors.deepPurple,
                         fontWeight: FontWeight.bold,
@@ -143,7 +144,7 @@ class PostCard extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: LinearProgressIndicator(
-                    value: paidMembers / totalMembers,
+                    value: progress,
                     backgroundColor: Colors.grey[200],
                     valueColor:
                         AlwaysStoppedAnimation<Color>(Colors.deepPurple),
@@ -165,7 +166,7 @@ class PostCard extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PostDetailsScreen(postId: id),
+                        builder: (context) => PostDetailsScreen(postId: postId),
                       ),
                     );
                   },
@@ -323,13 +324,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         PostCard(
                           title: post['title'] ?? 'No Title',
                           description: post['description'] ?? 'No Description',
-                          totalAmount: (post['amount'] as num?)?.toDouble() ??
-                              0.0, // Ensure it's double
-                          totalMembers: 1,
-                          paidMembers: 0,
-                          lastDate:
-                              post['lastDate'] as Timestamp?, // Pass lastDate
-                          id: post['postId'],
+                          amount: post['amount']?.toDouble() ?? 0.0,
+                          paidCount: post['paid'] ?? 0,
+                          totalStudents: post['no_students'] ?? 0,
+                          lastDate: post['lastDate'] as Timestamp?,
+                          postId: post['postId'] ?? '',
                         ),
                         SizedBox(height: 16),
                       ],
