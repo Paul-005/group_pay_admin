@@ -17,7 +17,7 @@ class PostCard extends StatelessWidget {
   final String postId;
 
   const PostCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.description,
     required this.amount,
@@ -25,7 +25,7 @@ class PostCard extends StatelessWidget {
     required this.totalStudents,
     required this.lastDate,
     required this.postId,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -190,6 +190,8 @@ class PostCard extends StatelessWidget {
 
 // Example usage:
 class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({super.key});
+
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
 }

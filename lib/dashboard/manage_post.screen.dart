@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Add this import
 import 'package:intl/intl.dart'; // Add this import for date formatting
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:path_provider/path_provider.dart';
+import 'package:open_file/open_file.dart';
+import 'dart:io';
 
 class PostDetailsScreen extends StatefulWidget {
   final String postId;
 
   const PostDetailsScreen({
-    Key? key,
+    super.key,
     required this.postId,
-  }) : super(key: key);
+  });
 
   @override
   _PostDetailsScreenState createState() => _PostDetailsScreenState();
@@ -78,6 +82,141 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
     }
   }
 
+  Future<void> _generateReport(Map<String, dynamic> postData) async {
+    final pdf = pw.Document();
+
+    final title = postData['title'] ?? 'No Title';
+    final paid = (postData['paid'] as List?) ?? [];
+    final unpaid = (postData['unpaid'] as List?) ?? [];
+    final amount = (postData['amount'] ?? 0.0).toDouble();
+    final lastDate = postData['lastDate'] as Timestamp;
+    final totalStudents = int.parse(postData['no_of_students']);
+    final collectedAmount = amount * paid.length;
+    final totalAmount = amount * totalStudents;
+
+    pdf.addPage(
+      pw.Page(
+        build: (context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                'Payment Collection Report',
+                style: pw.TextStyle(
+                  fontSize: 24,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 20),
+              pw.Text(
+                '$title',
+                style: pw.TextStyle(fontSize: 20),
+              ),
+              pw.Text(
+                'Due Date: ${DateFormat('dd MMM yyyy').format(lastDate.toDate())}',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+              pw.SizedBox(height: 20),
+              pw.Text(
+                'Total Students: $totalStudents',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Text(
+                'Collected Amount: Rs ${collectedAmount.toInt()}',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Text(
+                'Total Amount: Rs ${totalAmount.toInt()}',
+                style: pw.TextStyle(fontSize: 14),
+              ),
+              pw.SizedBox(height: 20),
+              pw.Text(
+                'Paid Students (${paid.length})',
+                style: pw.TextStyle(
+                  fontSize: 16,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              _buildPdfTable(paid, amount, true),
+              pw.SizedBox(height: 20),
+              pw.Text(
+                'Unpaid Students (${unpaid.length})',
+                style: pw.TextStyle(
+                  fontSize: 16,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 10),
+              _buildPdfTable(unpaid, amount, false),
+            ],
+          );
+        },
+      ),
+    );
+
+    final output = await getTemporaryDirectory();
+    final file = File(
+        '${output.path}/payment_report_${DateTime.now().millisecondsSinceEpoch}.pdf');
+    await file.writeAsBytes(await pdf.save());
+    await OpenFile.open(file.path);
+  }
+
+  pw.Widget _buildPdfTable(List students, double amount, bool isPaid) {
+    return pw.Table(
+      border: pw.TableBorder.all(),
+      children: [
+        // Header row
+        pw.TableRow(
+          children: [
+            pw.Padding(
+              padding: pw.EdgeInsets.all(5),
+              child: pw.Text(
+                'Name',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            pw.Padding(
+              padding: pw.EdgeInsets.all(5),
+              child: pw.Text(
+                'Amount',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+            pw.Padding(
+              padding: pw.EdgeInsets.all(5),
+              child: pw.Text(
+                'Status',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+        // Data rows
+        ...students.map(
+          (student) => pw.TableRow(
+            children: [
+              pw.Padding(
+                padding: pw.EdgeInsets.all(5),
+                child: pw.Text(student['name'] ?? 'No Name'),
+              ),
+              pw.Padding(
+                padding: pw.EdgeInsets.all(5),
+                child: pw.Text('Rs. ${amount.toStringAsFixed(0)}'),
+              ),
+              pw.Padding(
+                padding: pw.EdgeInsets.all(5),
+                child: pw.Text(isPaid ? 'Paid' : 'Pending'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,9 +234,44 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
         elevation: 0,
         actions: [
           IconButton(
+            onPressed: () async {
+              try {
+                _showLoadingDialog(context);
+
+                final postDoc = await FirebaseFirestore.instance
+                    .collection('posts')
+                    .doc(widget.postId)
+                    .get();
+
+                if (postDoc.exists) {
+                  await _generateReport(postDoc.data()!);
+                }
+
+                Navigator.pop(context);
+              } catch (e) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error generating report: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            },
+            icon: Image.asset(
+              'assets/pdf_generate.png',
+              width: 24,
+              height: 24,
+            ),
+            tooltip: 'Generate PDF Report',
+          ),
+          // PDF Generate Button
+
+          SizedBox(width: 8),
+          // Delete Button
+          IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () {
-              // Show confirmation dialog
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -118,9 +292,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                         ),
                         onPressed: () {
                           Navigator.of(context).pop();
-                          // Call delete function with the post ID
-                          _deletePost(widget
-                              .postId); // You'll need to add postId to the widget
+                          _deletePost(widget.postId);
                         },
                       ),
                     ],
@@ -129,6 +301,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
               );
             },
           ),
+          SizedBox(width: 8),
         ],
       ),
       body: StreamBuilder<DocumentSnapshot>(
@@ -259,15 +432,20 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Collection Progress',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey[800],
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Collection Progress',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: 16),
+                      SizedBox(height: 8),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -554,5 +732,41 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  // Add this method to show loading dialog
+  void _showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Generating Report...',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepPurple,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }
