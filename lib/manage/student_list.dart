@@ -286,6 +286,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
             'email': studentData['email'],
             'uid': studentData['uid'],
             'createdAt': studentData['createdAt'],
+            'name': studentData['name'],
           }
         ]),
       });
