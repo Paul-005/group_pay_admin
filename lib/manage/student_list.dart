@@ -37,7 +37,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
         setState(() {
           students = studentRequests.map((request) {
             return Student(
-              name: request['email'] ?? 'No Email',
+              name: request['name'] ?? 'No name',
               amount: 0.0,
               category: request['createdAt'] != null
                   ? DateTime.fromMillisecondsSinceEpoch(
@@ -270,7 +270,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
       }
 
       int studentIndex =
-          studentRequests.indexWhere((req) => req['email'] == student.name);
+          studentRequests.indexWhere((req) => req['uid'] == student.uid);
 
       if (studentIndex == -1) {
         throw Exception("Student not found in requests!");
@@ -285,6 +285,7 @@ class _StudentListScreenState extends State<StudentListScreen> {
           {
             'email': studentData['email'],
             'uid': studentData['uid'],
+            'name': studentData['name'],
             'createdAt': studentData['createdAt'],
           }
         ]),

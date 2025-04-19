@@ -192,6 +192,14 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
               ),
             ),
+            if (isPaid)
+              pw.Padding(
+                padding: pw.EdgeInsets.all(5),
+                child: pw.Text(
+                  'Payment Type',
+                  style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                ),
+              ),
           ],
         ),
         // Data rows
@@ -210,6 +218,13 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                 padding: pw.EdgeInsets.all(5),
                 child: pw.Text(isPaid ? 'Paid' : 'Pending'),
               ),
+              if (isPaid)
+                pw.Padding(
+                  padding: pw.EdgeInsets.all(5),
+                  child: pw.Text(
+                    student['payment_mode'] == 'cash' ? 'Cash' : 'Google Pay',
+                  ),
+                ),
             ],
           ),
         ),
@@ -328,12 +343,12 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
           final description = postData['description'] ?? 'No Description';
           final amount = (postData['amount'] ?? 0.0).toDouble();
           final status = postData['status'] ?? 'active';
-          final lastDate =
-              postData['lastDate'] as Timestamp; // Get the Timestamp object
+          final lastDate = postData['lastDate'] as Timestamp;
           final paid = (postData['paid'] as List?) ?? [];
           final unpaid = (postData['unpaid'] as List?) ?? [];
+          final cashPayers = (postData['cash_payers'] as List?) ?? [];
           final totalStudents = int.parse(postData['no_of_students']);
-          final paidCount = paid.length;
+          final paidCount = paid.length + cashPayers.length;
           final totalAmount = amount * totalStudents;
           final collectedAmount = amount * paidCount;
           final progressPercentage = (paidCount / totalStudents) * 100;
@@ -503,6 +518,72 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                   ),
                 ),
 
+                // Cash Payments Section
+                if (cashPayers.isNotEmpty) ...[
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 16),
+                    padding: EdgeInsets.all(20),
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Cash Payments Pending',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[800],
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: cashPayers.length,
+                          itemBuilder: (context, index) {
+                            final payer = cashPayers[index];
+                            return Card(
+                              elevation: 0,
+                              color: Colors.grey[100],
+                              margin: EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  backgroundColor: Colors.orange,
+                                  child: Icon(
+                                    Icons.pending,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                title: Text(
+                                  payer['name'] ?? 'No Name',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Amount: ₹${payer['amount']}',
+                                  style: TextStyle(
+                                    color: Colors.deepPurple,
+                                  ),
+                                ),
+                                trailing: ElevatedButton(
+                                  onPressed: () => _confirmCashPayment(payer),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: Text('Confirm'),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
                 // Students List Section with real data
                 Container(
                   padding: EdgeInsets.all(20),
@@ -588,8 +669,10 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                             date: _selectedFilter == 'Paid' ||
                                     (_selectedFilter == 'All' &&
                                         index < paid.length)
-                                ? 'Payment Date'
+                                ? student['payment_date'] ?? 'Payment Date'
                                 : null,
+                            paymentMode:
+                                student['payment_mode'] ?? 'Google Pay',
                           );
                         },
                       ),
@@ -691,7 +774,18 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
     required bool paid,
     required double amount,
     String? date,
+    String? paymentMode,
   }) {
+    String formattedDate = 'Payment Date';
+    if (date != null) {
+      try {
+        final parsedDate = DateTime.parse(date);
+        formattedDate = DateFormat('dd MMM yyyy').format(parsedDate);
+      } catch (e) {
+        formattedDate = 'Payment Date';
+      }
+    }
+
     return Card(
       elevation: 0,
       color: Colors.grey[100],
@@ -712,7 +806,11 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
           ),
         ),
         subtitle: Text(
-          paid ? 'Paid on $date' : 'Payment Pending',
+          paid
+              ? paymentMode == 'cash'
+                  ? 'Paid in Cash on $formattedDate'
+                  : 'Paid on $formattedDate'
+              : 'Payment Pending',
           style: TextStyle(
             color: paid ? Colors.green : Colors.orange,
           ),
@@ -768,5 +866,75 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
         );
       },
     );
+  }
+
+  Future<void> _confirmCashPayment(Map<String, dynamic> payer) async {
+    try {
+      final postRef =
+          FirebaseFirestore.instance.collection('posts').doc(widget.postId);
+
+      await FirebaseFirestore.instance.runTransaction((transaction) async {
+        // Get post document first
+        final postDoc = await transaction.get(postRef);
+        if (!postDoc.exists) {
+          throw Exception('Post not found');
+        }
+
+        final adminCode = postDoc.get('adminCode');
+        final postData = postDoc.data() as Map<String, dynamic>;
+        final cashPayers =
+            List<Map<String, dynamic>>.from(postData['cash_payers'] ?? []);
+        final paid = List<Map<String, dynamic>>.from(postData['paid'] ?? []);
+
+        // Get groups document
+        final groupRef =
+            FirebaseFirestore.instance.collection('groups').doc(adminCode);
+        final groupDoc = await transaction.get(groupRef);
+
+        if (!groupDoc.exists) {
+          throw Exception('Group not found');
+        }
+
+        // Remove from cash_payers
+        cashPayers.removeWhere((p) => p['uid'] == payer['uid']);
+
+        // Add to paid with payment mode
+        paid.add({
+          ...payer,
+          'payment_mode': 'cash',
+          'payment_date': DateTime.now().toIso8601String(),
+        });
+
+        // Update the post document
+        transaction.update(postRef, {
+          'cash_payers': cashPayers,
+          'paid': paid,
+        });
+
+        // Update groups document
+        final posts =
+            List<Map<String, dynamic>>.from(groupDoc.get('posts') ?? []);
+        final postIndex = posts.indexWhere((p) => p['postId'] == widget.postId);
+
+        if (postIndex != -1) {
+          posts[postIndex]['paid'] = (posts[postIndex]['paid'] ?? 0) + 1;
+          transaction.update(groupRef, {'posts': posts});
+        }
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Cash payment confirmed successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error confirming cash payment: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }
