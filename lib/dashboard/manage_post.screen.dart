@@ -249,42 +249,6 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            onPressed: () async {
-              try {
-                _showLoadingDialog(context);
-
-                final postDoc = await FirebaseFirestore.instance
-                    .collection('posts')
-                    .doc(widget.postId)
-                    .get();
-
-                if (postDoc.exists) {
-                  await _generateReport(postDoc.data()!);
-                }
-
-                Navigator.pop(context);
-              } catch (e) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Error generating report: $e'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
-            },
-            icon: Image.asset(
-              'assets/pdf_generate.png',
-              width: 24,
-              height: 24,
-            ),
-            tooltip: 'Generate PDF Report',
-          ),
-          // PDF Generate Button
-
-          SizedBox(width: 8),
-          // Delete Button
-          IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: () {
               showDialog(
@@ -515,6 +479,60 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                         ],
                       ),
                     ],
+                  ),
+                ),
+
+                // Add this after the Progress Section and before the Cash Payments Section
+// PDF Report Button
+                Container(
+                  width: double.infinity,
+                  margin: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: ElevatedButton.icon(
+                    onPressed: () async {
+                      try {
+                        _showLoadingDialog(context);
+
+                        final postDoc = await FirebaseFirestore.instance
+                            .collection('posts')
+                            .doc(widget.postId)
+                            .get();
+
+                        if (postDoc.exists) {
+                          await _generateReport(postDoc.data()!);
+                        }
+
+                        Navigator.pop(context);
+                      } catch (e) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error generating report: $e'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    },
+                    icon: Image.asset(
+                      'assets/pdf_generate.png',
+                      width: 24,
+                      height: 24,
+                    ),
+                    label: Text(
+                      'Generate PDF Report',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
                   ),
                 ),
 
@@ -773,14 +791,18 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
     required String name,
     required bool paid,
     required double amount,
-    String? date,
+    dynamic date,
     String? paymentMode,
   }) {
     String formattedDate = 'Payment Date';
     if (date != null) {
       try {
-        final parsedDate = DateTime.parse(date);
-        formattedDate = DateFormat('dd MMM yyyy').format(parsedDate);
+        if (date is Timestamp) {
+          formattedDate = DateFormat('dd MMM yyyy').format(date.toDate());
+        } else if (date is String) {
+          final parsedDate = DateTime.parse(date);
+          formattedDate = DateFormat('dd MMM yyyy').format(parsedDate);
+        }
       } catch (e) {
         formattedDate = 'Payment Date';
       }
@@ -885,6 +907,8 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
         final cashPayers =
             List<Map<String, dynamic>>.from(postData['cash_payers'] ?? []);
         final paid = List<Map<String, dynamic>>.from(postData['paid'] ?? []);
+        final unpaid =
+            List<Map<String, dynamic>>.from(postData['unpaid'] ?? []);
 
         // Get groups document
         final groupRef =
@@ -898,6 +922,9 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
         // Remove from cash_payers
         cashPayers.removeWhere((p) => p['uid'] == payer['uid']);
 
+        // Remove from unpaid array
+        unpaid.removeWhere((p) => p['uid'] == payer['uid']);
+
         // Add to paid with payment mode
         paid.add({
           ...payer,
@@ -909,6 +936,7 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
         transaction.update(postRef, {
           'cash_payers': cashPayers,
           'paid': paid,
+          'unpaid': unpaid,
         });
 
         // Update groups document

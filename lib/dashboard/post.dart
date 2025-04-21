@@ -84,6 +84,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             .map((student) => {
                   'email': student['email'],
                   'uid': student['uid'],
+                  'name': student['name'],
                 })
             .toList();
 

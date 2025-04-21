@@ -78,11 +78,32 @@ class _LoginPageState extends State<LoginPage> {
   _header(context) {
     return Column(
       children: [
+        // Logo with proper sizing
+        Container(
+          width: 150,
+          height: 150,
+          margin: const EdgeInsets.only(bottom: 24),
+          child: Image.asset(
+            'assets/logo.png', // Make sure this path matches where you store the image
+            fit: BoxFit.contain,
+          ),
+        ),
         const Text(
           "Welcome Admin",
-          style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            color: Colors.deepPurple,
+          ),
         ),
-        const Text("Enter your credential to login"),
+        const SizedBox(height: 8),
+        Text(
+          "Enter your credentials to login",
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
+        ),
         const SizedBox(height: 20),
         if (isLoading) _loading(),
       ],

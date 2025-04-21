@@ -96,23 +96,6 @@ class PostCard extends StatelessWidget {
           ),
 
           // Last Date
-          if (lastDate != null)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                children: [
-                  Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
-                  SizedBox(width: 8),
-                  Text(
-                    'Last Date: ${DateFormat('MMM dd, yyyy').format(lastDate!.toDate())}',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           SizedBox(height: 8),
 
           // Payment progress bar
