@@ -512,10 +512,17 @@ class _PostDetailsScreenState extends State<PostDetailsScreen> {
                         );
                       }
                     },
-                    icon: Image.asset(
-                      'assets/pdf_generate.png',
-                      width: 24,
-                      height: 24,
+                    icon: Container(
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Image.asset(
+                        'assets/pdf_generate.png',
+                        width: 24,
+                        height: 24,
+                      ),
                     ),
                     label: Text(
                       'Generate PDF Report',

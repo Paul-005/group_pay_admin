@@ -5,7 +5,7 @@ import 'package:group_pay_admin/dashboard/post.dart';
 import 'package:group_pay_admin/settings/notification.screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart'; // Import intl package for date formatting
+// Import intl package for date formatting
 
 class PostCard extends StatelessWidget {
   final String title;

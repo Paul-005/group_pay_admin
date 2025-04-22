@@ -80,8 +80,8 @@ class _LoginPageState extends State<LoginPage> {
       children: [
         // Logo with proper sizing
         Container(
-          width: 150,
-          height: 150,
+          width: 100,
+          height: 100,
           margin: const EdgeInsets.only(bottom: 24),
           child: Image.asset(
             'assets/logo.png', // Make sure this path matches where you store the image

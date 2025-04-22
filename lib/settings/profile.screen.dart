@@ -29,75 +29,78 @@ class ProfileScreen extends StatelessWidget {
           final user = snapshot.data;
           final name = user?.displayName ?? 'User';
 
-          return Column(
-            children: [
-              // Profile Header
-              Container(
-                padding: EdgeInsets.only(bottom: 24),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(32),
-                    bottomRight: Radius.circular(32),
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                // Profile Header
+                Container(
+                  padding: EdgeInsets.only(bottom: 24),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(32),
+                      bottomRight: Radius.circular(32),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      ProfilePic(name: name),
+                      const SizedBox(height: 16),
+                      Text(
+                        "Hi, $name",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: Column(
-                  children: [
-                    ProfilePic(name: name),
-                    const SizedBox(height: 16),
-                    Text(
-                      "Hi, $name",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                const SizedBox(height: 24),
+
+                // Menu Items
+                ProfileMenu(
+                  icon: Icons.person_outline,
+                  text: "My Account",
+                  press: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileEditPage(),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
-              ),
-              const SizedBox(height: 24),
-
-              // Menu Items
-              ProfileMenu(
-                icon: Icons.person_outline,
-                text: "My Account",
-                press: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const ProfileEditPage(),
-                    ),
-                  );
-                },
-              ),
-              ProfileMenu(
-                icon: Icons.notifications_outlined,
-                text: "Notifications",
-                press: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const EmptyNotificationsScreen(),
-                    ),
-                  );
-                },
-              ),
-              ProfileMenu(
-                icon: Icons.account_balance,
-                text: "Change Bank Details",
-                press: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return EditUpiIdPage();
-                  }));
-                },
-              ),
-
-              ProfileMenu(
-                icon: Icons.logout_outlined,
-                text: "Log Out",
-                isDestructive: true,
-                press: () async {
-                  await FirebaseAuth.instance.signOut();
-                },
-              ),
-            ],
+                ProfileMenu(
+                  icon: Icons.notifications_outlined,
+                  text: "Notifications",
+                  press: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const EmptyNotificationsScreen(),
+                      ),
+                    );
+                  },
+                ),
+                ProfileMenu(
+                  icon: Icons.account_balance,
+                  text: "Change Bank Details",
+                  press: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return EditUpiIdPage();
+                    }));
+                  },
+                ),
+                ProfileMenu(
+                  icon: Icons.logout_outlined,
+                  text: "Log Out",
+                  isDestructive: true,
+                  press: () async {
+                    await FirebaseAuth.instance.signOut();
+                  },
+                ),
+                const SizedBox(height: 24), // Add some padding at the bottom
+              ],
+            ),
           );
         },
       ),
