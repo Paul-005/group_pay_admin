@@ -2,6 +2,7 @@
 
 A Flutter application for managing group payments.
 
+
 ## Overview
 
 GroupPay Admin is a Flutter-based admin panel designed to streamline the process of managing group payments. It allows administrators to create payment requests, track student payments, manage student lists, and monitor overall collection progress.
